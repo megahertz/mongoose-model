@@ -36,8 +36,13 @@ function initializeModel(constructor: typeof Model, options?: any) {
 
 function initProp(name: string, options: any, constructor: typeof Model) {
   const result = Object.assign({}, options);
+
   if (options.ref) {
     result.ref = options.ref.name;
+
+    if (!options.type) {
+      result.type = Schema.Types.ObjectId;
+    }
   }
 
   Object.defineProperty(constructor.prototype, name, {
