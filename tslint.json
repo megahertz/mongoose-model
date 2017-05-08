@@ -2,6 +2,7 @@
   "extends": ["tslint:latest"],
   "rules": {
     "arrow-parens": false,
+    "ban-types": [true, ["Object", "Use {} instead."], ["String"]],
     "max-line-length": [true, 80],
     "member-ordering": [true, {
       "order": [
