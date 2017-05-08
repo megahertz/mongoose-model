@@ -28,20 +28,20 @@ function initializeModel(constructor: typeof Model, options?: any) {
       configurable: true,
       enumerable: true,
       get() {
-        const doc = this.document;
+        const doc = this._document;
         return doc ? doc[propertyKey] : undefined;
       },
       set(value: any) {
-        if (!this.document) {
+        if (!this._document) {
           return;
         }
 
-        this.document[propertyKey] = value;
+        this._document[propertyKey] = value;
       },
     });
   });
 
-  const schema = new Schema(cls._meta.properties);
-  cls.schema = mongooseModel(name, schema);
-  cls.initSchema(schema);
+  cls._schema = new Schema(cls._meta.properties);
+  cls._Model = mongooseModel(name, cls._schema);
+  cls.initSchema();
 }

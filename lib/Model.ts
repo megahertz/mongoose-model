@@ -4,6 +4,7 @@ import {
   Query,
   Schema,
 } from "mongoose";
+import Doc = Mocha.reporters.Doc;
 
 export interface IModelType<T extends Model> {
   new (model?: Document): T;
@@ -15,39 +16,51 @@ export interface IMeta {
 }
 
 export default class Model {
-  public static schema: MongooseModel<Document>;
+  protected static _Model: MongooseModel<Document>;
   protected static _meta: IMeta = {
     properties: {},
     schemaOptions: {},
   };
+  protected static _schema: Schema;
 
-  public document: Document;
+  protected _document: Document;
 
   constructor(model?: any) {
     if (model && typeof model.__v !== "undefined") {
-      this.document = model;
+      this._document = model;
       return;
     }
 
-    // tslint:disable-next-line variable-name
-    const Schema = (this.constructor as any).schema;
-    this.document = new Schema(model);
+    const Schema = (this.constructor as any)._Schema;
+    this._document = new Schema(model);
+  }
+
+  public get document(): Document {
+    return this._document;
   }
 
   public save(options?: any): Promise<Document> {
-    return this.document.save(options);
+    return this._document.save(options);
   }
 
   public increment() {
-    return this.document.increment();
+    return this._document.increment();
   }
 
   public remove(options?: any): Promise<Document> {
-    return this.document.remove(options);
+    return this._document.remove(options);
+  }
+
+  public static get Model(): MongooseModel<Document> {
+    return this._Model;
+  }
+
+  public static get schema(): Schema {
+    return this._schema;
   }
 
   public static remove(conditions?: any): Promise<any> {
-    return this.schema.remove(conditions).exec();
+    return this._Model.remove(conditions).exec();
   }
 
   public static find<T extends Model>(
@@ -55,11 +68,11 @@ export default class Model {
     projection?: any,
     options?: any,
   ): Promise<T[]> {
-    return this.wrapMany(this.schema.find(conditions, projection, options));
+    return this.wrapMany(this._Model.find(conditions, projection, options));
   }
 
   public static async findById<T extends Model>(id: string): Promise<T> {
-    return (this as any).wrap(this.schema.findById(id));
+    return (this as any).wrap(this._Model.findById(id));
   }
 
   public static findOne<T extends Model>(
@@ -67,7 +80,7 @@ export default class Model {
     projection?: any,
     options?: any,
   ): Promise<T> {
-    return this.wrap(this.schema.findOne(conditions, projection, options));
+    return this.wrap(this._Model.findOne(conditions, projection, options));
   }
 
   protected static async wrapMany<T extends Model>(
@@ -91,5 +104,5 @@ export default class Model {
   }
 
   // tslint:disable-next-line no-empty
-  protected static initSchema(schema: Schema): void {}
+  protected static initSchema(): void {}
 }
