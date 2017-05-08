@@ -132,8 +132,8 @@ export default class Model {
    */
   public static findById<T extends Model>(
     id: object | string | number,
-    projection: object,
-    options: object,
+    projection?: object,
+    options?: object,
   ): Query<T> {
     return this.wrap(this._Model.findById(id, projection, options));
   }
