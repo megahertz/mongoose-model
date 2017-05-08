@@ -111,7 +111,7 @@ export default class Model {
   /**
    * Removes documents from the collection.
    */
-  public static remove(conditions: object): Query<void> {
+  public static remove(conditions?: object): Query<void> {
     return this._Model.remove(conditions);
   }
 
