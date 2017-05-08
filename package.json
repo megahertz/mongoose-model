@@ -1,13 +1,13 @@
 {
   "name": "mongoose-model",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Define your mongoose models easily with Typescript",
   "main": "./dist/index.js",
   "scripts": {
     "prepublish": "npm run test && npm run build",
     "build": "tsc",
     "test": "mocha -r ts-node/register test/init.ts test/*.spec.ts",
-    "tslint": "tslint index.ts lib/**/*.ts test/**/*.ts"
+    "tslint": "tslint index.ts lib/*.ts lib/**/*.ts test/*.ts test/**/*.ts"
   },
   "typings": "./dist/index.d.ts",
   "repository": {

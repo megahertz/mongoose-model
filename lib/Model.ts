@@ -15,6 +15,8 @@ export interface IMeta {
   schemaOptions: any;
 }
 
+export type Ref<T> = T | string;
+
 export default class Model {
   protected static _Model: MongooseModel<Document>;
   protected static _meta: IMeta = {
@@ -25,18 +27,38 @@ export default class Model {
 
   protected _document: Document;
 
-  constructor(model?: any) {
-    if (model && typeof model.__v !== "undefined") {
-      this._document = model;
+  constructor(document?: any) {
+    if (document && typeof document.__v !== "undefined") {
+      this._document = document;
       return;
     }
 
-    const Schema = (this.constructor as any)._Schema;
-    this._document = new Schema(model);
+    const Model = (this.constructor as any)._Model;
+    this._document = new Model(document);
   }
 
   public get document(): Document {
     return this._document;
+  }
+
+  public get _id(): any {
+    return this._document._id;
+  }
+
+  public set _id(value: any) {
+    this._document._id = value;
+  }
+
+  public get __v(): any {
+    return this._document.__v;
+  }
+
+  public set __v(value: any) {
+    this._document.__v = value;
+  }
+
+  public get id(): any {
+    return (this._document as any).id;
   }
 
   public save(options?: any): Promise<Document> {
@@ -63,46 +85,65 @@ export default class Model {
     return this._Model.remove(conditions).exec();
   }
 
-  public static find<T extends Model>(
+  public static find<T extends Model[]>(
     conditions: any,
     projection?: any,
     options?: any,
-  ): Promise<T[]> {
-    return this.wrapMany(this._Model.find(conditions, projection, options));
+  ): Query<T> {
+    return this.wrapMany(
+      (this._Model as any).find(conditions, projection, options),
+    );
   }
 
-  public static async findById<T extends Model>(id: string): Promise<T> {
-    return (this as any).wrap(this._Model.findById(id));
+  public static findById<T extends Model>(id: string): Query<T> {
+    return this.wrap(this._Model.findById(id));
   }
 
   public static findOne<T extends Model>(
     conditions: any,
     projection?: any,
     options?: any,
-  ): Promise<T> {
+  ): Query<T> {
     return this.wrap(this._Model.findOne(conditions, projection, options));
-  }
-
-  protected static async wrapMany<T extends Model>(
-    this: IModelType<T>,
-    query: Query<any>,
-  ): Promise<T[]> {
-    const result: any[] = await query.exec();
-    return result.map(r => new this(r));
-  }
-
-  protected static async wrap<T extends Model>(
-    this: IModelType<T>,
-    query: Query<any>,
-  ): Promise<T> {
-    const result = await query.exec();
-    if (result) {
-      return new this(result);
-    } else {
-      return null;
-    }
   }
 
   // tslint:disable-next-line no-empty
   protected static initSchema(): void {}
+
+  private static wrap<T extends Model>(
+    query: Query<Document>,
+  ): Query<T> {
+    const exec = query.exec;
+    const then = query.then;
+
+    query.exec = async (...args: any[]) => {
+      return this.wrapResults(await exec.apply(query, args));
+    };
+    query.then = async (...args: any[]) => {
+      return this.wrapResults(await then.apply(query, args));
+    };
+
+    return query as any;
+  }
+
+  private static wrapMany<T extends Model[]>(
+    query: Query<Document>,
+  ): Query<T> {
+    return this.wrap(query) as any;
+  }
+
+  private static wrapResults<T extends Model>(
+    this: IModelType<T>,
+    result: any,
+  ) {
+    if (!result) {
+      return null;
+    }
+
+    if (result.unshift) {
+      return result.map(r => new this(r));
+    } else {
+      return new this(result);
+    }
+  }
 }

@@ -3,9 +3,9 @@
     "declaration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "lib": [ "es5" ],
+    "lib": [ "es6" ],
     "module": "commonjs",
     "sourceMap": true,
-    "target": "es5"
+    "target": "es6"
   }
 }

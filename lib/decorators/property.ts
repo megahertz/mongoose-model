@@ -25,6 +25,7 @@ function savePropertyMeta(target: Model, propertyKey: string, meta: any = {}) {
 
   if (!meta.type) {
     const type = Reflect.getMetadata("design:type", target, propertyKey);
+
     if (type) {
       meta.type = type;
     } else {

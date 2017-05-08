@@ -18,30 +18,49 @@ export default function model(constructorOrOptions: typeof Model|object) {
 function initializeModel(constructor: typeof Model, options?: any) {
   const cls = constructor as any;
   const name: string = cls.name;
+  let properties = cls._meta.properties;
 
   if (options) {
     cls._meta.schemaOptions = options;
   }
 
-  Object.keys(cls._meta.properties).forEach((propertyKey) => {
-    Object.defineProperty(constructor.prototype, propertyKey, {
-      configurable: true,
-      enumerable: true,
-      get() {
-        const doc = this._document;
-        return doc ? doc[propertyKey] : undefined;
-      },
-      set(value: any) {
-        if (!this._document) {
-          return;
-        }
+  properties = Object.keys(properties).reduce((result, key) => {
+    result[key] = initProp(key, properties[key], constructor);
+    return result;
+  }, {});
 
-        this._document[propertyKey] = value;
-      },
-    });
-  });
-
-  cls._schema = new Schema(cls._meta.properties);
+  cls._schema = new Schema(properties);
   cls._Model = mongooseModel(name, cls._schema);
   cls.initSchema();
+}
+
+function initProp(name: string, options: any, constructor: typeof Model) {
+  const result = Object.assign({}, options);
+  if (options.ref) {
+    result.ref = options.ref.name;
+  }
+
+  Object.defineProperty(constructor.prototype, name, {
+    configurable: true,
+    enumerable: true,
+    get() {
+      const doc = this._document;
+      const value = doc ? doc[name] : undefined;
+
+      if (options.ref && value) {
+        return new options.ref(value);
+      }
+
+      return value;
+    },
+    set(value: any) {
+      if (!this._document) {
+        return;
+      }
+
+      this._document[name] = value;
+    },
+  });
+
+  return result;
 }
