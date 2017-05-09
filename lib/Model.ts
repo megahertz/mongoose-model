@@ -119,7 +119,7 @@ export default class Model {
    * Finds documents.
    */
   public static find<T extends Model[]>(
-    conditions: object,
+    conditions?: object,
     projection?: object,
     options?: object,
   ): Query<T> {
