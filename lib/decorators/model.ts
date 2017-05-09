@@ -30,8 +30,8 @@ function initializeModel(constructor: typeof Model, options?: any) {
   }, {});
 
   cls._schema = new Schema(properties);
-  cls._Model = mongooseModel(name, cls._schema);
   cls.initSchema();
+  cls._Model = mongooseModel(name, cls._schema);
 }
 
 function initProp(name: string, options: any, constructor: typeof Model) {
