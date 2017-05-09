@@ -1,13 +1,16 @@
 import {
   Aggregate,
   Document,
-  Model as MongooseModel, ModelMapReduceOption,
+  DocumentToObjectOptions,
+  Model as MongooseModel,
+  ModelMapReduceOption,
   ModelUpdateOptions,
+  NativeError,
   Query,
   SaveOptions,
   Schema,
+  ValidationError,
 } from "mongoose";
-import Doc = Mocha.reporters.Doc;
 
 export interface IModelType<T extends Model> {
   new (model?: Document): T;
@@ -64,6 +67,194 @@ export default class Model {
     return (this._document as any).id;
   }
 
+  public get isNew(): boolean {
+    return this._document.isNew;
+  }
+
+  /** Checks if a path is set to its default. */
+  public $isDefault(path?: string): boolean {
+    return this._document.$isDefault(path);
+  }
+
+  /**
+   * Takes a populated field and returns it to its unpopulated state.
+   * If the path was not populated, this is a no-op.
+   */
+  public depopulate(path: string): this {
+    this._document.depopulate(path);
+    return this;
+  }
+
+  /**
+   * Returns true if the Document stores the same data as doc.
+   * Documents are considered equal when they have matching _ids, unless
+   * neither document has an _id, in which case this function falls back to
+   * using deepEqual().
+   */
+  public equals(doc: this): boolean {
+    return this._document.equals(doc.document);
+  }
+
+  /**
+   * Explicitly executes population and returns a promise.
+   * Useful for ES2015 integration.
+   */
+  public async execPopulate(): Promise<this> {
+    return this.wrap(await this._document.execPopulate());
+  }
+
+  /**
+   * Returns the value of a path.
+   */
+  public get(path: string, type?: any): any {
+    return this._document.get(path, type);
+  }
+
+  /**
+   * Initializes the document without setters or marking anything modified.
+   * Called internally after a document is returned from mongodb.
+   */
+  public init(doc: Document, opts?: object): this {
+    return this.wrap(this._document.init(doc, opts));
+  }
+
+  /** Helper for console.log */
+  public inspect(options?: object): any {
+    return this._document.inspect(options);
+  }
+
+  /**
+   * Marks a path as invalid, causing validation to fail.
+   * The errorMsg argument will become the message of the ValidationError.
+   * The value argument (if passed) will be available through the
+   * ValidationError.value property.
+   */
+  public invalidate(
+    path: string,
+    errorMsg: string | NativeError,
+    value: any,
+    kind?: string,
+  ): ValidationError | boolean {
+    return this._document.invalidate(path, errorMsg, value, kind);
+  }
+
+  /**
+   * Returns true if path was directly set and modified, else false.
+   */
+  public isDirectModified(path: string): boolean {
+    return this._document.isDirectModified(path);
+  }
+
+  /**
+   * Checks if path was initialized
+   */
+  public isInit(path: string): boolean {
+    return this._document.isInit(path);
+  }
+
+  /**
+   * Returns true if this document was modified, else false.
+   * If path is given, checks if a path or any full path containing path as
+   * part of its path chain has been modified.
+   */
+  public isModified(path?: string): boolean {
+    return this._document.isModified(path);
+  }
+
+  /**
+   * Checks if path was selected in the source query which initialized this
+   * document.
+   */
+  public isSelected(path: string): boolean {
+    return this._document.isSelected(path);
+  }
+
+  /**
+   * Marks the path as having pending changes to write to the db.
+   * Very helpful when using Mixed types.
+   * @param path the path to mark modified
+   */
+  public markModified(path: string): void {
+    this._document.markModified(path);
+  }
+
+  /**
+   * Returns the list of paths that have been modified.
+   */
+  public modifiedPaths(): string[] {
+    return this._document.modifiedPaths();
+  }
+
+  /**
+   * Populates document references, executing the callback when complete.
+   * If you want to use promises instead, use this function with
+   * execPopulate()
+   * Population does not occur unless a callback is passed or you explicitly
+   * call execPopulate(). Passing the same path a second time will overwrite
+   * the previous path options. See Model.populate() for explaination of
+   * options.
+   */
+  public populate(...args: any[]): this {
+    return this.wrap((this._document as any).populate(...args));
+  }
+
+  /**
+   * Gets _id(s) used during population of the given path. If the path was not
+   * populated, undefined is returned.
+   */
+  public populated(path: string): any {
+    return this._document.populated(path);
+  }
+
+  /**
+   * The return value of this method is used in calls to JSON.stringify(doc).
+   * This method accepts the same options as Document#toObject. To apply the
+   * options to every document of your schema by default, set your schemas
+   * toJSON option to the same argument.
+   */
+  public toJSON(options?: DocumentToObjectOptions): object {
+    return this._document.toJSON(options);
+  }
+
+  /**
+   * Converts this document into a plain javascript object, ready for storage
+   * in MongoDB. Buffers are converted to instances of mongodb.Binary for
+   * proper storage.
+   */
+  public toObject(options?: DocumentToObjectOptions): object {
+    return this._document.toObject(options);
+  }
+
+  /**
+   * Helper for console.log
+   */
+  public toString(): string {
+    return this._document.toString();
+  }
+
+  /**
+   * Clears the modified state on the specified path.
+   * @param path the path to unmark modified
+   */
+  public unmarkModified(path: string): void {
+    this._document.unmarkModified(path);
+  }
+
+  /**
+   * Executes registered validation rules for this document.
+   */
+  public validate(optional?: object): Promise<void> {
+    return this._document.validate(optional);
+  }
+
+  /**
+   * Executes registered validation rules (skipping asynchronous validators for
+   * this document. This method is useful if you need synchronous validation.
+   */
+  public validateSync(pathsToValidate: string | string[]): Error {
+    return this._document.validateSync(pathsToValidate);
+  }
+
   /**
    * Saves this document.
    */
@@ -84,6 +275,21 @@ export default class Model {
    */
   public remove(): Promise<this> {
     return this._document.remove().then(() => this);
+  }
+
+  /**
+   * Sends an update command with this document _id as the query selector.
+   */
+  public async update(doc: object, options?: ModelUpdateOptions): Query<this> {
+    return this.wrap(await this._document.update(doc, options));
+  }
+
+  /**
+   * Sets the value of a path, or many paths.
+   */
+  public set(...values: any[]): this {
+    (this._document as any).set(...values);
+    return this;
   }
 
   /**
