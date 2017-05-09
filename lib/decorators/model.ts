@@ -29,7 +29,7 @@ function initializeModel(constructor: typeof Model, options?: any) {
     return result;
   }, {});
 
-  cls._schema = new Schema(properties);
+  cls._schema = new Schema(properties, cls._meta.schemaOptions);
   cls.initSchema();
   cls._Model = mongooseModel(name, cls._schema);
 }
