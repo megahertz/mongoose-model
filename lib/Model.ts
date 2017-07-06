@@ -25,10 +25,7 @@ export type Ref<T> = T | string;
 
 export default class Model {
   protected static _Model: MongooseModel<Document>;
-  protected static _meta: IMeta = {
-    properties: {},
-    schemaOptions: {},
-  };
+  protected static _meta: IMeta;
   protected static _schema: Schema;
 
   protected _document: Document;

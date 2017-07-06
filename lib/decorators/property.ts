@@ -21,7 +21,15 @@ export default function property(
 }
 
 function savePropertyMeta(target: Model, propertyKey: string, meta: any = {}) {
-  const propsMeta: object = (target.constructor as any)._meta.properties;
+  const constructor = (target.constructor as any);
+  if (!constructor._meta) {
+    constructor._meta = {
+      properties: {},
+      schemaOptions: {},
+    };
+  }
+
+  const propsMeta: object = constructor._meta.properties;
 
   if (!meta.type) {
     const type = Reflect.getMetadata("design:type", target, propertyKey);
@@ -29,7 +37,7 @@ function savePropertyMeta(target: Model, propertyKey: string, meta: any = {}) {
     if (type) {
       meta.type = type;
     } else {
-      const name = (target.constructor as any).name;
+      const name = constructor.name;
       throw new Error(
         `Type of ${name}.${propertyKey} isn't set. Uf you use typescript ` +
         "you need to enable emitDecoratorMetadata in tsconfig.json",
