@@ -6,8 +6,8 @@ const email = "user1@example.com";
 describe("Model", () => {
   beforeEach(() => {
     const user = new User({
-      email,
       age: 20,
+      email,
       name: "User 1",
     });
     return user.save();

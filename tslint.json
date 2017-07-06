@@ -24,6 +24,7 @@
       ]
     }],
     "no-console": false,
+    "no-shadowed-variable": false,
     "no-unused-expression": false,
     "no-var-requires": false,
     "variable-name": false,

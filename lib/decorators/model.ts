@@ -35,7 +35,7 @@ function initializeModel(constructor: typeof Model, options?: any) {
 }
 
 function initProp(name: string, options: any, constructor: typeof Model) {
-  const result = Object.assign({}, options);
+  const result = { ...options };
 
   if (options.ref) {
     result.ref = options.ref.name;
