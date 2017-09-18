@@ -7,6 +7,9 @@ describe("Model", () => {
   beforeEach(() => {
     const user = new User({
       age: 20,
+      contacts: [
+        { type: "phone", text: "+7 900 123 4567" },
+      ],
       email,
       name: "User 1",
     });
@@ -35,5 +38,10 @@ describe("Model", () => {
   it("should find an existed user with query", async () => {
     const users = await User.find<User[]>({ email }).limit(1);
     expect(users[0].displayName).to.be.equal(`User 1 <${email}>`);
+  });
+
+  it("should contain the array-like field - contacts", async () => {
+    const users = await User.find<User[]>({ email }).limit(1);
+    expect(users[0].contacts[0].type).to.be.equal("phone");
   });
 });

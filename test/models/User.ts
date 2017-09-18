@@ -1,12 +1,17 @@
 import { Query } from "mongoose";
-import { Model, model, property, Ref } from "../../index";
-import Post from "./Post";
+import { Model, model, property } from "../../index";
+
+export interface IContact {
+  type: string;
+  value: string;
+}
 
 @model
 export default class User extends Model {
   @property public age: number;
   @property public createdAt: Date;
   @property public email: string;
+  @property public contacts: IContact[];
 
   @property({ default: false })
   public isActive: boolean;
