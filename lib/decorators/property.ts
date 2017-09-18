@@ -6,7 +6,7 @@ export default function property(
   meta: any,
 ): (target: Model, propertyKey: string) => void;
 export default function property(
-  targetOrMeta: Model|any,
+  targetOrMeta: Model | any,
   propertyKey?: string,
 ) {
   if (targetOrMeta instanceof Model) {

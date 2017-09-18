@@ -3,7 +3,7 @@ import Model from "../Model";
 
 export default function model(constructor: typeof Model);
 export default function model(options: object);
-export default function model(constructorOrOptions: typeof Model|object) {
+export default function model(constructorOrOptions: typeof Model | object) {
   if (typeof constructorOrOptions === "function") {
     initializeModel(constructorOrOptions);
     return;
