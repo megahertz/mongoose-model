@@ -277,8 +277,8 @@ export default class Model {
   /**
    * Sends an update command with this document _id as the query selector.
    */
-  public async update(doc: object, options?: ModelUpdateOptions): Query<this> {
-    return this.wrap(await this._document.update(doc, options));
+  public update(doc: object, options?: ModelUpdateOptions): Query<any> {
+    return this._document.update(doc, options);
   }
 
   /**
@@ -441,7 +441,8 @@ export default class Model {
    * Triggers the save() hook.
    */
   public static async create<T extends Model>(doc: any[]): Promise<T[]>;
-  public static async create<T extends Model>(doc: any): Promise<T> {
+  public static async create<T extends Model>(doc: any): Promise<T>;
+  public static async create<T extends Model>(doc: any): Promise<any> {
     return this.wrapResults(await this._Model.create(doc)) as any;
   }
 
@@ -453,7 +454,8 @@ export default class Model {
    * This function does not trigger save middleware.
    */
   public static async insertMany<T extends Model>(docs: any): Promise<T>;
-  public static async insertMany<T extends Model>(docs: any[]): Promise<T[]> {
+  public static async insertMany<T extends Model>(docs: any[]): Promise<T[]>;
+  public static async insertMany<T extends Model>(docs: any): Promise<any> {
     return this.wrapResults(await this._Model.insertMany(docs)) as any;
   }
 
