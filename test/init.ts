@@ -6,3 +6,7 @@ before(() => {
     useMongoClient: true,
   });
 });
+
+after(() => {
+  mongoose.disconnect();
+});
