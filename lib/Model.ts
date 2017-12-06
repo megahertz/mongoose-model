@@ -292,7 +292,7 @@ export default class Model {
    * Sets the value of a path, or many paths.
    */
   public set(key: string, value: any, type?: any, options?: object): this;
-  public set(values: object, value: any, type?: any, options?: object): this;
+  public set(values: object, value?: any, type?: any, options?: object): this;
   public set(...values: any[]): this {
     if (typeof values[0] === "string") {
       values[1] = Model.unwrap(values[1]);
