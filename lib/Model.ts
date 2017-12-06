@@ -104,7 +104,14 @@ export default class Model {
    * Returns the value of a path.
    */
   public get(path: string, type?: any): any {
-    return this._document.get(path, type);
+    const value = this._document.get(path, type);
+    const options = (this as any).constructor._meta.properties[path];
+
+    if (options && options.ref && value) {
+      return new options.ref(value);
+    }
+
+    return value;
   }
 
   /**
@@ -284,7 +291,15 @@ export default class Model {
   /**
    * Sets the value of a path, or many paths.
    */
+  public set(key: string, value: any, type?: any, options?: object): this;
+  public set(values: object, value: any, type?: any, options?: object): this;
   public set(...values: any[]): this {
+    if (typeof values[0] === "string") {
+      values[1] = Model.unwrap(values[1]);
+    } else {
+      values[0] = Model.unwrap(values[0]);
+    }
+
     (this._document as any).set(...values);
     return this;
   }
@@ -443,7 +458,7 @@ export default class Model {
   public static async create<T extends Model>(doc: any[]): Promise<T[]>;
   public static async create<T extends Model>(doc: any): Promise<T>;
   public static async create<T extends Model>(doc: any): Promise<any> {
-    return this.wrapResults(await this._Model.create(doc)) as any;
+    return this.wrapResults(await this._Model.create(this.unwrap(doc))) as any;
   }
 
   /**
@@ -601,5 +616,28 @@ export default class Model {
     } else {
       return new this(result);
     }
+  }
+
+  /**
+   * Return document from model instance. Can traverse arrays and objects
+   */
+  protected static unwrap(doc: any): any {
+    if (Array.isArray(doc)) {
+      return doc.map(this.unwrap);
+    }
+
+    if (doc instanceof Model) {
+      return doc.document;
+    }
+
+    if (doc) {
+      Object.keys(doc).forEach((key) => {
+        if (doc[key] instanceof Model) {
+          doc[key] = doc[key].document;
+        }
+      });
+    }
+
+    return doc;
   }
 }

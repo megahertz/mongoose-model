@@ -1,6 +1,6 @@
 {
   "name": "mongoose-model",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Define your mongoose models easily with Typescript",
   "main": "./dist/index.js",
   "scripts": {
@@ -32,7 +32,7 @@
   },
   "homepage": "https://github.com/megahertz/mongoose-model#readme",
   "peerDependencies": {
-    "mongoose": "*"
+    "mongoose": ">= 4"
   },
   "devDependencies": {
     "@types/chai": "*",

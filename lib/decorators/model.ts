@@ -39,31 +39,17 @@ function initProp(name: string, options: any, constructor: typeof Model) {
 
   if (options.ref) {
     result.ref = options.ref.name;
-
-    if (!options.type) {
-      result.type = Schema.Types.ObjectId;
-    }
+    result.type = Schema.Types.ObjectId;
   }
 
   Object.defineProperty(constructor.prototype, name, {
     configurable: true,
     enumerable: true,
     get() {
-      const doc = this._document;
-      const value = doc ? doc[name] : undefined;
-
-      if (options.ref && value) {
-        return new options.ref(value);
-      }
-
-      return value;
+      return this.get && this.get(name);
     },
     set(value: any) {
-      if (!this._document) {
-        return;
-      }
-
-      this._document[name] = value;
+      return this.set && this.set(name, value);
     },
   });
 
