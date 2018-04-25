@@ -551,19 +551,9 @@ export default class Model {
   }
 
   /**
-   * geoNear support for Mongoose
-   */
-  public static geoNear<T extends Model[]>(
-    near: any | any[],
-    options: object,
-  ): Query<T> {
-    return this.wrap(this._Model.geoNear(near, options));
-  }
-
-  /**
    * Performs aggregations on the models collection.
    */
-  public static aggregate(...aggregations: object[]): Aggregate<object[]> {
+  public static aggregate(...aggregations: any[]): Aggregate<any[]> {
     return this._Model.aggregate(...aggregations);
   }
 
