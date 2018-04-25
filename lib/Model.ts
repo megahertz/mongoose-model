@@ -2,6 +2,7 @@ import {
   Aggregate,
   Document,
   DocumentToObjectOptions,
+  model,
   Model as MongooseModel,
   ModelMapReduceOption,
   ModelUpdateOptions,
@@ -108,7 +109,14 @@ export default class Model {
     const options = (this as any).constructor._meta.properties[path];
 
     if (options && options.ref && value) {
-      return new options.ref(value);
+      let ref = options.ref;
+
+      // noinspection SuspiciousTypeOfGuard
+      if (typeof ref === "string") {
+        ref = (model(options.ref) as any)._OuterModel;
+      }
+
+      return new ref(value);
     }
 
     return value;

@@ -43,7 +43,6 @@ function initProp(name: string, options: any, constructor: typeof Model) {
     // noinspection SuspiciousTypeOfGuard
     if (typeof options.ref === "string") {
       result.ref = options.ref;
-      options.ref = (mongooseModel(options.ref) as any)._OuterModel;
     } else {
       result.ref = options.ref.name;
     }
