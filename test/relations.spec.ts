@@ -6,6 +6,9 @@ const email = "user1@example.com";
 
 describe("Model relations", () => {
   beforeEach(async () => {
+    await User.remove();
+    await Post.remove();
+
     const user = await User.create({
       age: 20,
       email,
@@ -17,11 +20,6 @@ describe("Model relations", () => {
       creator: user,
       title: "Post 1",
     });
-  });
-
-  afterEach(async () => {
-    await User.remove();
-    await Post.remove();
   });
 
   it("should allow to populate related models", async () => {
