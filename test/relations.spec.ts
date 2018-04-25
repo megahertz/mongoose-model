@@ -6,20 +6,17 @@ const email = "user1@example.com";
 
 describe("Model relations", () => {
   beforeEach(async () => {
-    const user = new User({
+    const user = await User.create({
       age: 20,
       email,
       name: "User 1",
     });
-    await user.save();
 
-    const post = new Post({
+    return Post.create({
       body: "Post body",
-      creator: user._id,
+      creator: user,
       title: "Post 1",
     });
-
-    await post.save();
   });
 
   afterEach(async () => {
