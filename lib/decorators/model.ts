@@ -32,13 +32,22 @@ function initializeModel(constructor: typeof Model, options?: any) {
   cls._schema = new Schema(properties, cls._meta.schemaOptions);
   cls.initSchema();
   cls._Model = mongooseModel(name, cls._schema);
+  cls._Model._OuterModel = cls;
 }
 
 function initProp(name: string, options: any, constructor: typeof Model) {
   const result = { ...options };
 
   if (options.ref) {
-    result.ref = options.ref.name;
+    // tslint:disable prefer-conditional-expression
+    // noinspection SuspiciousTypeOfGuard
+    if (typeof options.ref === "string") {
+      result.ref = options.ref;
+      options.ref = (mongooseModel(options.ref) as any)._OuterModel;
+    } else {
+      result.ref = options.ref.name;
+    }
+
     result.type = Schema.Types.ObjectId;
   }
 
