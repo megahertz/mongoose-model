@@ -22,7 +22,7 @@ export interface IMeta {
   schemaOptions: any;
 }
 
-export type Ref<T> = T | string;
+export type Ref<T> = T & string;
 
 export default class Model {
   protected static _Model: MongooseModel<Document>;

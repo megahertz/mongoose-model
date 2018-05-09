@@ -25,9 +25,8 @@ describe("Model relations", () => {
   it("should allow to populate related models", async () => {
     const post = await Post.findByTitle("Post 1").populate("creator");
     expect(post.title).to.be.equal("Post 1");
-    expect((post.creator as User).displayName)
-      .to.be.equal(`User 1 <${email}>`);
-    expect((post.creator as User).isNew).to.be.false;
+    expect(post.creator.displayName).to.be.equal(`User 1 <${email}>`);
+    expect(post.creator.isNew).to.be.false;
   });
 
   it("should allow to read a foreign field which is just set", async () => {
@@ -38,9 +37,9 @@ describe("Model relations", () => {
     });
 
     expect((post.populated("creator"))).to.equals(user._id);
-    expect((post.creator as User).email).to.equals(email);
+    expect(post.creator.email).to.equals(email);
 
     const savedPost = await Post.findByTitle("Post 2").populate("creator");
-    expect((savedPost.creator as User).email).to.equals(email);
+    expect(savedPost.creator.email).to.equals(email);
   });
 });
