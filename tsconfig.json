@@ -3,7 +3,7 @@
     "declaration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "lib": [ "es5" ],
+    "lib": [ "es6" ],
     "module": "commonjs",
     "outDir": "./dist",
     "sourceMap": true,
