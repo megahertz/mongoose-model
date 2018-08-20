@@ -3,8 +3,6 @@
 [![NPM version](https://badge.fury.io/js/mongoose-model.svg)](https://badge.fury.io/js/mongoose-model)
 [![Dependencies status](https://david-dm.org/megahertz/mongoose-model/status.svg)](https://david-dm.org/megahertz/mongoose-model)
 
-## This package is experimental and not ready for production
-
 ## Installation
 
 Install with [npm](https://npmjs.org/package/mongoose-model):
