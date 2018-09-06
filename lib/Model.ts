@@ -5,6 +5,7 @@ import {
   model,
   Model as MongooseModel,
   ModelMapReduceOption,
+  ModelPopulateOptions,
   ModelUpdateOptions,
   NativeError,
   Query,
@@ -25,8 +26,8 @@ export interface IMeta {
 export type Ref<T> = T & string;
 
 export default class Model {
-  protected static _Model: MongooseModel<Document>;
   protected static _meta: IMeta;
+  protected static _Model: MongooseModel<Document>;
   protected static _schema: Schema;
 
   protected _document: Document;
@@ -41,44 +42,53 @@ export default class Model {
     this._document = new Model(document);
   }
 
-  public get document(): Document {
-    return this._document;
-  }
-
-  public get _id(): any {
-    return this._document._id;
-  }
-
-  public set _id(value: any) {
-    this._document._id = value;
-  }
-
-  public get __v(): any {
+  get __v(): any {
     return this._document.__v;
   }
 
-  public set __v(value: any) {
+  set __v(value: any) {
     this._document.__v = value;
   }
 
-  public get id(): any {
+  get _id(): any {
+    return this._document._id;
+  }
+
+  set _id(value: any) {
+    this._document._id = value;
+  }
+
+  get document(): Document {
+    return this._document;
+  }
+
+  get id(): any {
     return (this._document as any).id;
   }
 
-  public get isNew(): boolean {
+  get isNew(): boolean {
     return this._document.isNew;
   }
 
-  /** Checks if a path is set to its default. */
-  public $isDefault(path?: string): boolean {
+  /**
+   * Checks if a path is set to its default.
+   */
+  $isDefault(path?: string): boolean {
     return this._document.$isDefault(path);
+  }
+
+  /**
+   * Alias for remove
+   */
+  async delete(): Promise<this> {
+    return this.remove();
   }
 
   /**
    * Takes a populated field and returns it to its unpopulated state.
    * If the path was not populated, this is a no-op.
    */
-  public depopulate(path: string): this {
+  depopulate(path: string): this {
     this._document.depopulate(path);
     return this;
   }
@@ -89,7 +99,7 @@ export default class Model {
    * neither document has an _id, in which case this function falls back to
    * using deepEqual().
    */
-  public equals(doc: this): boolean {
+  equals(doc: this): boolean {
     return this._document.equals(doc.document);
   }
 
@@ -97,14 +107,14 @@ export default class Model {
    * Explicitly executes population and returns a promise.
    * Useful for ES2015 integration.
    */
-  public async execPopulate(): Promise<this> {
+  async execPopulate(): Promise<this> {
     return this.wrap(await this._document.execPopulate());
   }
 
   /**
    * Returns the value of a path.
    */
-  public get(path: string, type?: any): any {
+  get(path: string, type?: any): any {
     const value = this._document.get(path, type);
     const options = (this as any).constructor._meta.properties[path];
 
@@ -123,15 +133,23 @@ export default class Model {
   }
 
   /**
+   * Signal that we desire an increment of this documents version.
+   */
+  increment(): this {
+    this._document.increment();
+    return this;
+  }
+
+  /**
    * Initializes the document without setters or marking anything modified.
    * Called internally after a document is returned from mongodb.
    */
-  public init(doc: Document, opts?: object): this {
+  init(doc: Document, opts?: object): this {
     return this.wrap(this._document.init(doc, opts));
   }
 
   /** Helper for console.log */
-  public inspect(options?: object): any {
+  inspect(options?: object): any {
     return this._document.inspect(options);
   }
 
@@ -141,7 +159,7 @@ export default class Model {
    * The value argument (if passed) will be available through the
    * ValidationError.value property.
    */
-  public invalidate(
+  invalidate(
     path: string,
     errorMsg: string | NativeError,
     value: any,
@@ -151,16 +169,31 @@ export default class Model {
   }
 
   /**
+   * Whether mongoose thinks this doc is deleted.
+   */
+  isDeleted(isDeleted?: boolean): boolean | void {
+    return this._document.isDeleted(isDeleted);
+  }
+
+  /**
    * Returns true if path was directly set and modified, else false.
    */
-  public isDirectModified(path: string): boolean {
+  isDirectModified(path: string): boolean {
     return this._document.isDirectModified(path);
+  }
+
+  /**
+   * Checks if path was explicitly selected. If no projection, always returns
+   * true.
+   */
+  isDirectSelected(path: string): boolean {
+    return this._document.isDirectSelected(path);
   }
 
   /**
    * Checks if path was initialized
    */
-  public isInit(path: string): boolean {
+  isInit(path: string): boolean {
     return this._document.isInit(path);
   }
 
@@ -169,7 +202,7 @@ export default class Model {
    * If path is given, checks if a path or any full path containing path as
    * part of its path chain has been modified.
    */
-  public isModified(path?: string): boolean {
+  isModified(path?: string): boolean {
     return this._document.isModified(path);
   }
 
@@ -177,7 +210,7 @@ export default class Model {
    * Checks if path was selected in the source query which initialized this
    * document.
    */
-  public isSelected(path: string): boolean {
+  isSelected(path: string): boolean {
     return this._document.isSelected(path);
   }
 
@@ -186,14 +219,21 @@ export default class Model {
    * Very helpful when using Mixed types.
    * @param path the path to mark modified
    */
-  public markModified(path: string): void {
+  markModified(path: string): void {
     this._document.markModified(path);
+  }
+
+  /**
+   * Returns another Model instance.
+   */
+  model(name: string): MongooseModel<any> {
+    return this._document.model(name);
   }
 
   /**
    * Returns the list of paths that have been modified.
    */
-  public modifiedPaths(): string[] {
+  modifiedPaths(): string[] {
     return this._document.modifiedPaths();
   }
 
@@ -206,7 +246,7 @@ export default class Model {
    * the previous path options. See Model.populate() for explaination of
    * options.
    */
-  public populate(...args: any[]): this {
+  populate(...args: any[]): this {
     return this.wrap((this._document as any).populate(...args));
   }
 
@@ -214,94 +254,30 @@ export default class Model {
    * Gets _id(s) used during population of the given path. If the path was not
    * populated, undefined is returned.
    */
-  public populated(path: string): any {
+  populated(path: string): any {
     return this._document.populated(path);
-  }
-
-  /**
-   * The return value of this method is used in calls to JSON.stringify(doc).
-   * This method accepts the same options as Document#toObject. To apply the
-   * options to every document of your schema by default, set your schemas
-   * toJSON option to the same argument.
-   */
-  public toJSON(options?: DocumentToObjectOptions): object {
-    return this._document.toJSON(options);
-  }
-
-  /**
-   * Converts this document into a plain javascript object, ready for storage
-   * in MongoDB. Buffers are converted to instances of mongodb.Binary for
-   * proper storage.
-   */
-  public toObject(options?: DocumentToObjectOptions): object {
-    return this._document.toObject(options);
-  }
-
-  /**
-   * Helper for console.log
-   */
-  public toString(): string {
-    return this._document.toString();
-  }
-
-  /**
-   * Clears the modified state on the specified path.
-   * @param path the path to unmark modified
-   */
-  public unmarkModified(path: string): void {
-    this._document.unmarkModified(path);
-  }
-
-  /**
-   * Executes registered validation rules for this document.
-   */
-  public validate(optional?: object): Promise<void> {
-    return this._document.validate(optional);
-  }
-
-  /**
-   * Executes registered validation rules (skipping asynchronous validators for
-   * this document. This method is useful if you need synchronous validation.
-   */
-  public validateSync(pathsToValidate: string | string[]): Error {
-    return this._document.validateSync(pathsToValidate);
-  }
-
-  /**
-   * Saves this document.
-   */
-  public async save(options?: SaveOptions): Promise<this> {
-    return this.wrap(await this._document.save(options));
-  }
-
-  /**
-   * Signal that we desire an increment of this documents version.
-   */
-  public increment(): this {
-    this._document.increment();
-    return this;
   }
 
   /**
    * Removes this document from the db.
    */
-  public remove(): Promise<this> {
+  async remove(): Promise<this> {
     return this._document.remove().then(() => this);
   }
 
   /**
-   * Sends an update command with this document _id as the query selector.
+   * Saves this document.
    */
-  public update(doc: object, options?: ModelUpdateOptions): Query<any> {
-    return this._document.update(doc, options);
+  async save(options?: SaveOptions): Promise<this> {
+    return this.wrap(await this._document.save(options));
   }
 
   /**
    * Sets the value of a path, or many paths.
    */
-  public set(key: string, value: any, type?: any, options?: object): this;
-  public set(values: object, value?: any, type?: any, options?: object): this;
-  public set(...values: any[]): this {
+  set(key: string, value: any, type?: any, options?: object): this;
+  set(values: object, value?: any, type?: any, options?: object): this;
+  set(...values: any[]): this {
     if (typeof values[0] === "string") {
       values[1] = Model.unwrap(values[1]);
     } else {
@@ -310,6 +286,62 @@ export default class Model {
 
     (this._document as any).set(...values);
     return this;
+  }
+
+  /**
+   * The return value of this method is used in calls to JSON.stringify(doc).
+   * This method accepts the same options as Document#toObject. To apply the
+   * options to every document of your schema by default, set your schemas
+   * toJSON option to the same argument.
+   */
+  toJSON(options?: DocumentToObjectOptions): object {
+    return this._document.toJSON(options);
+  }
+
+  /**
+   * Converts this document into a plain javascript object, ready for storage
+   * in MongoDB. Buffers are converted to instances of mongodb.Binary for
+   * proper storage.
+   */
+  toObject(options?: DocumentToObjectOptions): object {
+    return this._document.toObject(options);
+  }
+
+  /**
+   * Helper for console.log
+   */
+  toString(): string {
+    return this._document.toString();
+  }
+
+  /**
+   * Clears the modified state on the specified path.
+   * @param path the path to unmark modified
+   */
+  unmarkModified(path: string): void {
+    this._document.unmarkModified(path);
+  }
+
+  /**
+   * Sends an update command with this document _id as the query selector.
+   */
+  update(doc: object, options?: ModelUpdateOptions): Query<any> {
+    return this._document.update(doc, options);
+  }
+
+  /**
+   * Executes registered validation rules for this document.
+   */
+  validate(optional?: object): Promise<void> {
+    return this._document.validate(optional);
+  }
+
+  /**
+   * Executes registered validation rules (skipping asynchronous validators for
+   * this document. This method is useful if you need synchronous validation.
+   */
+  validateSync(pathsToValidate: string | string[]): Error {
+    return this._document.validateSync(pathsToValidate);
   }
 
   /**
@@ -323,28 +355,157 @@ export default class Model {
   /**
    * Returns Model class
    */
-  public static get Model(): MongooseModel<Document> {
+  static get Model(): MongooseModel<Document> {
     return this._Model;
   }
 
   /**
    * Returns schema instance
    */
-  public static get schema(): Schema {
+  static get schema(): Schema {
     return this._schema;
+  }
+
+  /**
+   * Creates a Query and specifies a $where condition.
+   */
+  static $where<T extends Model[]>(
+    argument: string | Function,
+  ): Query<T> {
+    return this.wrap(this._Model.$where(argument));
+  }
+
+  /**
+   * Performs aggregations on the models collection.
+   */
+  static aggregate(...aggregations: any[]): Aggregate<any[]> {
+    return this._Model.aggregate(...aggregations);
+  }
+
+  /**
+   * Sends multiple insertOne, updateOne, updateMany, replaceOne, deleteOne,
+   * and/or deleteMany operations to the MongoDB server in one command.
+   * This is faster than sending multiple independent operations (like)
+   * if you use create()) because with bulkWrite() there is only one round
+   * trip to MongoDB.
+   * Mongoose will perform casting on all operations you provide.
+   * This function does not trigger any middleware, not save() nor update().
+   * If you need to trigger save() middleware for every document use create()
+   * instead.
+   * @param writes Operations
+   * @param cb callback
+   * @return `BulkWriteOpResult` if the operation succeeds
+   */
+  static bulkWrite(writes: any[], cb?: (err, res) => void) {
+    return this._Model.bulkWrite(writes, cb);
+  }
+
+  /**
+   * Counts number of matching documents in a database collection.
+   * @deprecated
+   */
+  static count(conditions?: object): Query<number> {
+    return this._Model.count(conditions);
+  }
+
+  /**
+   * Counts number of documents matching `criteria` in a database collection.
+   *
+   * If you want to count all documents in a large collection,
+   * use the `estimatedDocumentCount()` instead.
+   * If you call `countDocuments({})`, MongoDB will always execute
+   * a full collection scan and **not** use any indexes.
+   */
+  static countDocuments(conditions, callback?): Query<number> {
+    return this._Model.countDocuments(conditions, callback);
+  }
+
+  /**
+   * Shortcut for saving one or more documents to the database.
+   * MyModel.create(docs) does new MyModel(doc).save() for every doc in docs.
+   * Triggers the save() hook.
+   */
+  static async create<T extends Model>(doc: any[]): Promise<T[]>;
+  static async create<T extends Model>(doc: any): Promise<T>;
+  static async create<T extends Model>(doc: any): Promise<any> {
+    return this.wrapResults(await this._Model.create(this.unwrap(doc))) as any;
+  }
+
+  /**
+   * Similar to ensureIndexes(), except for it uses the createIndex function.
+   * The ensureIndex() function checks to see if an index with that name
+   * already exists, and, if not, does not attempt to create the index.
+   * createIndex() bypasses this check.
+   * @param cb Optional callback
+   */
+  static async createIndexes(cb?: (err: any) => void): Promise<void> {
+    return this._Model.createIndexes(cb);
   }
 
   /**
    * Removes documents from the collection.
    */
-  public static remove(conditions?: object): Query<void> {
-    return this._Model.remove(conditions);
+  static deleteMany(conditions?: any, callback?: (err) => void): Query<any> {
+    return this._Model.deleteMany(conditions, callback);
+  }
+
+  /**
+   * Removes documents from the collection.
+   */
+  static deleteOne(conditions?: any, callback?: (err) => void): Query<any> {
+    return this._Model.deleteOne(conditions, callback);
+  }
+
+  static discriminator(name: string, schema: any): MongooseModel<any> {
+    return this._Model.discriminator(name, schema);
+  }
+
+  /**
+   * Creates a Query for a distinct operation.
+   */
+  static distinct(field: string, conditions?: object): Query<any[]> {
+    return this._Model.distinct(field, conditions);
+  }
+
+  /**
+   * Sends ensureIndex commands to mongo for each index declared in the schema.
+   */
+  static async ensureIndexes(callback?: (err: any) => void): Promise<void>;
+  static async ensureIndexes(
+    options: any,
+    callback?: (err: any) => void,
+   ): Promise<void> {
+    if (typeof options === "function") {
+      callback = options;
+      options = {};
+    }
+    return this._Model.ensureIndexes(options, callback);
+  }
+
+  /**
+   * Estimates the number of documents in the MongoDB collection. Faster than
+   * using `countDocuments()` for large collections because
+   * `estimatedDocumentCount()` uses collection metadata rather than scanning
+   * the entire collection.
+   */
+  static estimatedDocumentCount(
+    callback?: (err: any, count: number) => void,
+  ): Query<number>;
+  static estimatedDocumentCount(
+    options: any,
+    callback?: (err: any, count: number) => void,
+  ): Query<number> {
+    if (typeof options === "function") {
+      callback = options;
+      options = {};
+    }
+    return this._Model.estimatedDocumentCount(options, callback);
   }
 
   /**
    * Finds documents.
    */
-  public static find<T extends Model[]>(
+  static find<T extends Model[]>(
     conditions?: object,
     projection?: object,
     options?: object,
@@ -356,7 +517,7 @@ export default class Model {
    * Finds a single document by its _id field. findById(id) is almost*
    * equivalent to findOne({ _id: id }). findById() triggers findOne hooks.
    */
-  public static findById<T extends Model>(
+  static findById<T extends Model>(
     id: object | string | number,
     projection?: object,
     options?: object,
@@ -365,61 +526,15 @@ export default class Model {
   }
 
   /**
-   * Finds one document. The conditions are cast to their respective
-   * SchemaTypes before the command is sent.
+   * Issue a mongodb findAndModify remove command by a document's _id field.
+   * findByIdAndRemove(id, ...) is equivalent to
+   * findOneAndRemove({ _id: id }, ...). Finds a matching document, removes it.
    */
-  public static findOne<T extends Model>(
-    conditions: object,
-    projection?: object,
+  static findByIdAndRemove<T extends Model>(
+    id: object | number | string,
     options?: object,
   ): Query<T> {
-    return this.wrap(this._Model.findOne(conditions, projection, options));
-  }
-
-  /**
-   * Counts number of matching documents in a database collection.
-   */
-  public static count(conditions?: object): Query<number> {
-    return this._Model.count(conditions);
-  }
-
-  /**
-   * Creates a Query for a distinct operation.
-   */
-  public static distinct(field: string, conditions?: object): Query<any[]> {
-    return this._Model.distinct(field, conditions);
-  }
-
-  /**
-   * Creates a Query, applies the passed conditions, and returns the Query.
-   */
-  public static where<T extends Model[]>(
-    path: string,
-    conditions?: object,
-  ): Query<T> {
-    return this.wrap(this._Model.where(path, conditions));
-  }
-
-  /**
-   * Creates a Query and specifies a $where condition.
-   */
-  public static $where<T extends Model[]>(
-    argument: string | Function,
-  ): Query<T> {
-    return this.wrap(this._Model.$where(argument));
-  }
-
-  /**
-   * Issues a mongodb findAndModify update command.
-   * Finds a matching document, updates it according to the update arg, passing
-   * any options, and returns the found document.
-   */
-  public static findOneAndUpdate<T extends Model>(
-    conditions?: object,
-    update?: object,
-    options?: object,
-  ): Query<T> {
-    return this.wrap(this._Model.findOneAndUpdate(conditions, update, options));
+    return this.wrap(this._Model.findByIdAndRemove(id, options));
   }
 
   /**
@@ -427,7 +542,7 @@ export default class Model {
    * findByIdAndUpdate(id, ...) is equivalent to
    * findOneAndUpdate({ _id: id }, ...).
    */
-  public static findByIdAndUpdate<T extends Model>(
+  static findByIdAndUpdate<T extends Model>(
     id: object | number | string,
     update?: object,
     options?: object,
@@ -436,10 +551,22 @@ export default class Model {
   }
 
   /**
+   * Finds one document. The conditions are cast to their respective
+   * SchemaTypes before the command is sent.
+   */
+  static findOne<T extends Model>(
+    conditions: object,
+    projection?: object,
+    options?: object,
+  ): Query<T> {
+    return this.wrap(this._Model.findOne(conditions, projection, options));
+  }
+
+  /**
    * Issue a mongodb findAndModify remove command.
    * Finds a matching document, removes it.
    */
-  public static findOneAndRemove<T extends Model>(
+  static findOneAndRemove<T extends Model>(
     conditions?: object,
     options?: object,
   ): Query<T> {
@@ -447,26 +574,55 @@ export default class Model {
   }
 
   /**
-   * Issue a mongodb findAndModify remove command by a document's _id field.
-   * findByIdAndRemove(id, ...) is equivalent to
-   * findOneAndRemove({ _id: id }, ...). Finds a matching document, removes it.
+   * Issues a mongodb findAndModify update command.
+   * Finds a matching document, updates it according to the update arg, passing
+   * any options, and returns the found document.
    */
-  public static findByIdAndRemove<T extends Model>(
-    id: object | number | string,
+  static findOneAndUpdate<T extends Model>(
+    conditions?: object,
+    update?: object,
     options?: object,
   ): Query<T> {
-    return this.wrap(this._Model.findByIdAndRemove(id, options));
+    return this.wrap(this._Model.findOneAndUpdate(conditions, update, options));
   }
 
   /**
-   * Shortcut for saving one or more documents to the database.
-   * MyModel.create(docs) does new MyModel(doc).save() for every doc in docs.
-   * Triggers the save() hook.
+   * Implements $geoSearch functionality for Mongoose
    */
-  public static async create<T extends Model>(doc: any[]): Promise<T[]>;
-  public static async create<T extends Model>(doc: any): Promise<T>;
-  public static async create<T extends Model>(doc: any): Promise<any> {
-    return this.wrapResults(await this._Model.create(this.unwrap(doc))) as any;
+  static geoSearch<T extends Model[]>(
+    conditions: object,
+    options: {
+      /** return the raw object instead of the Mongoose Model */
+      lean?: boolean;
+      /** The maximum number of results to return */
+      limit?: number;
+      /** the maximum distance from the point near that a result can be */
+      maxDistance: number;
+      /** x,y point to search for */
+      near: number[];
+    }): Query<T> {
+    return this.wrap(this._Model.geoSearch(conditions, options));
+  }
+
+  /**
+   * Shortcut for creating a new Document from existing raw data,
+   * pre-saved in the DB. The document returned has no paths marked
+   * as modified initially.
+   */
+  static hydrate<T extends Model>(obj: object): T {
+    return this.wrapResults(this._Model.hydrate(obj)) as T;
+  }
+
+  /**
+   * Performs any async initialization of this model against MongoDB.
+   * This function is called automatically, so you don't need to call it.
+   * This function is also idempotent, so you may call it to get back a promise
+   * that will resolve when your indexes are finished building as an alternative
+   * to `MyModel.on('index')`
+   * @param callback optional
+   */
+  static init<T>(callback?: (err: any) => void): Promise<T> {
+    return this._Model.init(callback) as any;
   }
 
   /**
@@ -476,19 +632,78 @@ export default class Model {
    * document.
    * This function does not trigger save middleware.
    */
-  public static async insertMany<T extends Model>(docs: any): Promise<T>;
-  public static async insertMany<T extends Model>(docs: any[]): Promise<T[]>;
-  public static async insertMany<T extends Model>(docs: any): Promise<any> {
+  static async insertMany<T extends Model>(docs: any): Promise<T>;
+  static async insertMany<T extends Model>(docs: any[]): Promise<T[]>;
+  static async insertMany<T extends Model>(docs: any): Promise<any> {
     return this.wrapResults(await this._Model.insertMany(docs)) as any;
   }
 
   /**
-   * Shortcut for creating a new Document from existing raw data,
-   * pre-saved in the DB. The document returned has no paths marked
-   * as modified initially.
+   * Executes a mapReduce command.
    */
-  public static hydrate<T extends Model>(obj: object): T {
-    return this.wrapResults(this._Model.hydrate(obj)) as T;
+  static mapReduce<Key, Value>(
+    o: ModelMapReduceOption<Document, Key, Value>,
+  ): Promise<any> {
+    return this._Model.mapReduce(o);
+  }
+
+  static model<T extends Document>(name: string): MongooseModel<T> {
+    return this._Model.model(name) as any;
+  }
+
+  /**
+   * Populates document references.
+   * @param docs Either a single document or array of documents to populate.
+   * @param options A hash of key/val (path, options) used for population.
+   * @param callback Optional callback, executed upon completion. Receives err
+   * and the doc(s).
+   */
+  static async populate<T>(
+    docs: any[],
+    options: ModelPopulateOptions | ModelPopulateOptions[],
+    callback?: (err: any, res: T[]) => void,
+  ): Promise<T[]>;
+  static async populate<T>(
+    docs: any,
+    options: ModelPopulateOptions | ModelPopulateOptions[],
+    callback?: (err: any, res: T) => void,
+  ): Promise<T> {
+    return this.wrapResults(
+      await this._Model.populate(docs, options, callback),
+    ) as any;
+  }
+
+  /**
+   * Removes documents from the collection.
+   * @deprecated
+   */
+  static remove(conditions?: object): Query<void> {
+    return this._Model.remove(conditions);
+  }
+
+  /**
+   * Same as `update()`, except MongoDB replace the existing document with the
+   * given document (no atomic operators like `$set`).
+   *
+   * **Note** updateMany will _not_ fire update middleware. Use
+   * `pre('updateMany')` and `post('updateMany')` instead.
+   */
+  static replaceOne(
+    conditions: object,
+    doc: object,
+    options?: ModelUpdateOptions,
+  ): Query<any> {
+    return (this._Model as any).replaceOne(conditions, doc, options);
+  }
+
+  /**
+   * Translate any aliases fields/conditions so the final query or document
+   * object is pure
+   * @param raw fields/conditions that may contain aliased keys
+   * @return the translated 'pure' fields/conditions
+   */
+  static translateAliases(raw: any): any {
+    return this._Model.translateAliases(raw);
   }
 
   /**
@@ -496,7 +711,7 @@ export default class Model {
    * All update values are cast to their appropriate SchemaTypes before being
    * sent.
    */
-  public static update(
+  static update(
     conditions: object,
     doc: object,
     options?: ModelUpdateOptions,
@@ -511,7 +726,7 @@ export default class Model {
    * **Note** updateMany will _not_ fire update middleware. Use
    * `pre('updateMany')` and `post('updateMany')` instead.
    */
-  public static updateMany(
+  static updateMany(
     conditions: object,
     doc: object,
     options?: ModelUpdateOptions,
@@ -526,7 +741,7 @@ export default class Model {
    * **Note** updateMany will _not_ fire update middleware. Use
    * `pre('updateMany')` and `post('updateMany')` instead.
    */
-  public static updateOne(
+  static updateOne(
     conditions: object,
     doc: object,
     options?: ModelUpdateOptions,
@@ -535,56 +750,48 @@ export default class Model {
   }
 
   /**
-   * Same as `update()`, except MongoDB replace the existing document with the
-   * given document (no atomic operators like `$set`).
-   *
-   * **Note** updateMany will _not_ fire update middleware. Use
-   * `pre('updateMany')` and `post('updateMany')` instead.
+   * Watches the underlying collection for changes using MongoDB change streams.
+   * This function does not trigger any middleware.
    */
-  public static replaceOne(
-    conditions: object,
-    doc: object,
-    options?: ModelUpdateOptions,
-  ): Query<any> {
-    return (this._Model as any).replaceOne(conditions, doc, options);
+  static watch(options: any) {
+    return this._Model.watch(options);
   }
 
   /**
-   * Executes a mapReduce command.
+   * Creates a Query, applies the passed conditions, and returns the Query.
    */
-  public static mapReduce<Key, Value>(
-    o: ModelMapReduceOption<Document, Key, Value>,
-  ): Promise<any> {
-      return this._Model.mapReduce(o);
-  }
-
-  /**
-   * Performs aggregations on the models collection.
-   */
-  public static aggregate(...aggregations: any[]): Aggregate<any[]> {
-    return this._Model.aggregate(...aggregations);
-  }
-
-  /**
-   * Implements $geoSearch functionality for Mongoose
-   */
-  public static geoSearch<T extends Model[]>(
-    conditions: object,
-    options: {
-      /** x,y point to search for */
-      near: number[];
-      /** the maximum distance from the point near that a result can be */
-      maxDistance: number;
-      /** The maximum number of results to return */
-      limit?: number;
-      /** return the raw object instead of the Mongoose Model */
-      lean?: boolean;
-    }): Query<T> {
-    return this.wrap(this._Model.geoSearch(conditions, options));
+  static where<T extends Model[]>(
+    path: string,
+    conditions?: object,
+  ): Query<T> {
+    return this.wrap(this._Model.where(path, conditions));
   }
 
   // tslint:disable-next-line no-empty
   protected static initSchema(): void {}
+
+  /**
+   * Return document from model instance. Can traverse arrays and objects
+   */
+  protected static unwrap(doc: any): any {
+    if (Array.isArray(doc)) {
+      return doc.map(this.unwrap);
+    }
+
+    if (doc instanceof Model) {
+      return doc.document;
+    }
+
+    if (doc) {
+      Object.keys(doc).forEach((key) => {
+        if (doc[key] instanceof Model) {
+          doc[key] = doc[key].document;
+        }
+      });
+    }
+
+    return doc;
+  }
 
   protected static wrap<T extends Model[]>(query: Query<any>): Query<any>;
   protected static wrap<T extends Model>(query: Query<any>): Query<any> {
@@ -614,28 +821,5 @@ export default class Model {
     } else {
       return new this(result);
     }
-  }
-
-  /**
-   * Return document from model instance. Can traverse arrays and objects
-   */
-  protected static unwrap(doc: any): any {
-    if (Array.isArray(doc)) {
-      return doc.map(this.unwrap);
-    }
-
-    if (doc instanceof Model) {
-      return doc.document;
-    }
-
-    if (doc) {
-      Object.keys(doc).forEach((key) => {
-        if (doc[key] instanceof Model) {
-          doc[key] = doc[key].document;
-        }
-      });
-    }
-
-    return doc;
   }
 }

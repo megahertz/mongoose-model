@@ -6,8 +6,8 @@ const email = "user1@example.com";
 
 describe("Model relations", () => {
   beforeEach(async () => {
-    await User.remove();
-    await Post.remove();
+    await User.deleteMany();
+    await Post.deleteMany();
 
     const user = await User.create({
       age: 20,

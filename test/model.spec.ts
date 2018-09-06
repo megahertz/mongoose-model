@@ -17,7 +17,7 @@ describe("Model", () => {
   });
 
   afterEach(() => {
-    return User.remove();
+    return User.deleteMany();
   });
 
   it("should be successfully created", () => {

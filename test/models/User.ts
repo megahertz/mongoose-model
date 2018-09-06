@@ -8,21 +8,18 @@ export interface IContact {
 
 @model
 export default class User extends Model {
-  @property public age: number;
-  @property public createdAt: Date;
-  @property public email: string;
-  @property public contacts: IContact[];
-
-  @property({ default: false })
-  public isActive: boolean;
-
+  @property age: number;
+  @property contacts: IContact[];
+  @property createdAt: Date;
+  @property email: string;
+  @property({ default: false }) isActive: boolean;
   @property public name: string;
 
-  public get displayName() {
+  get displayName() {
     return `${this.name} <${this.email}>`;
   }
 
-  public static findByEmail(email: string): Query<User> {
+  static findByEmail(email: string): Query<User> {
     return this.findOne({ email });
   }
 }

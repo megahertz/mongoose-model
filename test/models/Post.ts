@@ -4,13 +4,11 @@ import User from "./User";
 
 @model
 export default class Post extends Model {
-  @property public title: string;
-  @property public body: string;
+  @property body: string;
+  @property({ ref: User }) creator: Ref<User>;
+  @property title: string;
 
-  @property({ ref: User })
-  public creator: Ref<User>;
-
-  public static findByTitle(title: string): Query<Post> {
-    return this.findOne({ title});
+  static findByTitle(title: string): Query<Post> {
+    return this.findOne({ title });
   }
 }

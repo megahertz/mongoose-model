@@ -1,20 +1,17 @@
 {
   "name": "mongoose-model",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Define your mongoose models easily with Typescript",
   "main": "./dist/index.js",
   "scripts": {
     "prepublish": "npm run build && npm run test",
     "build": "tsc",
+    "lint": "tslint -t verbose index.ts '{lib|test}/**/*.ts'",
     "mocha": "mocha -r ts-node/register test/init.ts test/*.spec.ts",
-    "test": "npm run tslint && npm run mocha",
-    "tslint": "tslint -t verbose index.ts lib/*.ts lib/**/*.ts test/*.ts test/**/*.ts"
+    "test": "npm run lint && npm run mocha"
   },
   "typings": "./dist/index.d.ts",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/megahertz/mongoose-model.git"
-  },
+  "repository": "megahertz/mongoose-model",
   "files": [
     "dist"
   ],
@@ -27,12 +24,10 @@
   ],
   "author": "Alexey Prokhorov",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/megahertz/mongoose-model/issues"
-  },
+  "bugs": "https://github.com/megahertz/mongoose-model/issues",
   "homepage": "https://github.com/megahertz/mongoose-model#readme",
   "peerDependencies": {
-    "mongoose": ">= 4"
+    "mongoose": ">=4"
   },
   "devDependencies": {
     "@types/chai": "*",
