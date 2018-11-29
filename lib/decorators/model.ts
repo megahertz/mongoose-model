@@ -1,65 +1,30 @@
 import { model as mongooseModel, Schema } from "mongoose";
-import Model from "../Model";
+import Model, { IMeta } from "../Model";
+import { transformProperties } from "./propertyTransformers";
 
 export default function model(constructor: typeof Model);
 export default function model(options: object);
-export default function model(constructorOrOptions: typeof Model | object) {
-  if (typeof constructorOrOptions === "function") {
-    initializeModel(constructorOrOptions);
+export default function model(constructorOrCfg: typeof Model | object) {
+  // normal decorator
+  if (typeof constructorOrCfg === "function") {
+    initializeModel(constructorOrCfg as any);
     return;
   }
 
-  const options = constructorOrOptions;
+  // decorator with arguments
   return (constructor: typeof Model) => {
-    initializeModel(constructor, options);
+    initializeModel(constructor, constructorOrCfg);
   };
 }
 
-function initializeModel(constructor: typeof Model, options?: any) {
+function initializeModel(constructor: typeof Model, cfg?: any) {
   const cls = constructor as any;
-  const name: string = cls.name;
-  let properties = cls._meta.properties;
+  const meta: IMeta = cls.initMeta();
 
-  if (options) {
-    cls._meta.schemaOptions = options;
-  }
-
-  properties = Object.keys(properties).reduce((result, key) => {
-    result[key] = initProp(key, properties[key], constructor);
-    return result;
-  }, {});
-
-  cls._schema = new Schema(properties, cls._meta.schemaOptions);
+  meta.schemaOptions = cfg;
+  meta.properties = transformProperties(constructor.prototype, meta.properties);
+  cls._schema = new Schema(meta.properties, meta.schemaOptions);
   cls.initSchema();
-  cls._Model = mongooseModel(name, cls._schema);
+  cls._Model = mongooseModel(meta.name, cls._schema);
   cls._Model._OuterModel = cls;
-}
-
-function initProp(name: string, options: any, constructor: typeof Model) {
-  const result = { ...options };
-
-  if (options.ref) {
-    // tslint:disable prefer-conditional-expression
-    // noinspection SuspiciousTypeOfGuard
-    if (typeof options.ref === "string") {
-      result.ref = options.ref;
-    } else {
-      result.ref = options.ref.name;
-    }
-
-    result.type = Schema.Types.ObjectId;
-  }
-
-  Object.defineProperty(constructor.prototype, name, {
-    configurable: true,
-    enumerable: true,
-    get() {
-      return this.get && this.get(name);
-    },
-    set(value: any) {
-      return this.set && this.set(name, value);
-    },
-  });
-
-  return result;
 }

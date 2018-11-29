@@ -12,21 +12,43 @@ Install with [npm](https://npmjs.org/package/mongoose-model):
 ## Usage
 
 ```typescript
-import { Model, model, property } from "..";
+import { def, Model, model, prop, Query, ref } from "mongoose-model";
+
+export interface IContact {
+  kind: string;
+  value: string;
+}
 
 @model
-export default class User extends Model {
-  @property public age: number;
-  @property public createdAt: Date;
-  @property public email: string;
+export class User extends Model {
+  @prop age: number;
+  @prop({
+    kind: String,
+    value: String,
+  })
+  contacts: IContact[];
+  @prop createdAt: Date;
+  @prop email: string;
+  @def(false) isActive: boolean;
+  @prop name: string;
 
-  @property({ default: false })
-  public isActive: boolean;
+  get displayName() {
+    return `${this.name} <${this.email}>`;
+  }
 
-  @property public name: string;
+  static findByEmail(email: string): Query<User> {
+    return this.findOne({ email });
+  }
+}
 
-  public static findByEmail(email: string): Promise<User> {
-    return this.findOne<User>({ email });
+@model
+export class Post extends Model {
+  @prop body: string;
+  @ref  creator: User;
+  @prop title: string;
+
+  static findByTitle(title: string): Query<Post> {
+    return this.findOne({ title });
   }
 }
 ```

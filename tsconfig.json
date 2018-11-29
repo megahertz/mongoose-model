@@ -3,14 +3,13 @@
     "declaration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "lib": [ "es6" ],
+    "lib": [ "es2017" ],
     "module": "commonjs",
     "outDir": "./dist",
     "sourceMap": true,
     "target": "es5"
   },
   "include": [
-    "./index.ts",
-    "./node_modules/typescript/lib/lib.es2017.d.ts"
+    "./index.ts"
   ]
 }

@@ -11,7 +11,6 @@ import {
   Query,
   SaveOptions,
   Schema,
-  ValidationError,
 } from "mongoose";
 
 export interface IModelType<T extends Model> {
@@ -19,6 +18,7 @@ export interface IModelType<T extends Model> {
 }
 
 export interface IMeta {
+  name: string;
   properties: any;
   schemaOptions: any;
 }
@@ -164,7 +164,7 @@ export default class Model {
     errorMsg: string | NativeError,
     value: any,
     kind?: string,
-  ): ValidationError | boolean {
+  ) {
     return this._document.invalidate(path, errorMsg, value, kind);
   }
 
@@ -340,7 +340,7 @@ export default class Model {
    * Executes registered validation rules (skipping asynchronous validators for
    * this document. This method is useful if you need synchronous validation.
    */
-  validateSync(pathsToValidate: string | string[]): Error {
+  validateSync(pathsToValidate: string | string[]) {
     return this._document.validateSync(pathsToValidate);
   }
 
@@ -765,6 +765,23 @@ export default class Model {
     conditions?: object,
   ): Query<T> {
     return this.wrap(this._Model.where(path, conditions));
+  }
+
+  /**
+   * Initialize static _meta field with empty values
+   */
+  protected static initMeta(): IMeta {
+    if (this._meta) {
+      return this._meta;
+    }
+
+    this._meta = {
+      name: this.name,
+      properties: {},
+      schemaOptions: {},
+    };
+
+    return this._meta;
   }
 
   // tslint:disable-next-line no-empty
