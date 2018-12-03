@@ -54,6 +54,18 @@ function ref(model: Model, key: string, cfg: any) {
   if (!cfg.ref) return cfg;
 
   if (cfg.ref === true) {
+    if (!cfg.type) {
+      const name = (model.constructor as any)._meta.name;
+      throw new Error(
+        "It seems that your code has circular references. In this case " +
+        `${name}.${key} reference should be decorated explicitly:  ` +
+        `@ref('Model') ${key}: Model instead of @ref ${key}: Model. ` +
+        `Unfortunately, typescript doesn't support circular ` +
+        "references between classes with decorators. " +
+        "https://github.com/Microsoft/TypeScript/issues/4521",
+      );
+    }
+
     cfg.ref = cfg.type;
   }
 
@@ -86,13 +98,13 @@ function type(model: Model, key: string, cfg: any) {
 
   cfg.type = Reflect.getMetadata("design:type", model, key);
 
-  if (!cfg.type) {
-    const name = (model.constructor as any)._meta.name;
-    throw new Error(
-      `Type of ${name}.${key} isn't set. If you use typescript ` +
-      "you need to enable emitDecoratorMetadata in tsconfig.json",
-    );
+  if (cfg.type || cfg.ref) {
+    return cfg;
   }
 
-  return cfg;
+  const name = (model.constructor as any)._meta.name;
+  throw new Error(
+    `Type of ${name}.${key} isn't set. If you use typescript ` +
+    "you need to enable emitDecoratorMetadata in tsconfig.json",
+  );
 }

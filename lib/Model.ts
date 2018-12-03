@@ -164,7 +164,7 @@ export default class Model {
     errorMsg: string | NativeError,
     value: any,
     kind?: string,
-  ) {
+  ): any {
     return this._document.invalidate(path, errorMsg, value, kind);
   }
 
