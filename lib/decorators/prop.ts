@@ -1,8 +1,8 @@
 import Model, { IMeta } from "../Model";
 
-export default function property(model: Model, key: string): void;
-export default function property(cfg: any): (model: Model, key: string) => void;
-export default function property(modelOrCfg: Model | any, key?: string) {
+export default function prop(model: Model, key: string): void;
+export default function prop(cfg: any): (model: Model, key: string) => void;
+export default function prop(modelOrCfg: Model | any, key?: string) {
   // normal decorator
   if (modelOrCfg instanceof Model) {
     addProp(modelOrCfg, key);

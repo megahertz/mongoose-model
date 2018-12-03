@@ -4,7 +4,7 @@ export { default as def } from "./lib/decorators/def";
 export {
   default as property,
   default as prop,
-} from "./lib/decorators/property";
+} from "./lib/decorators/prop";
 export { default as propertyTransformers }
   from "./lib/decorators/propertyTransformers";
 export { default as ref } from "./lib/decorators/ref";

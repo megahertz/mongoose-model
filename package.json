@@ -1,6 +1,6 @@
 {
   "name": "mongoose-model",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Define your mongoose models easily with Typescript",
   "main": "./dist/index.js",
   "scripts": {

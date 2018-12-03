@@ -1,5 +1,5 @@
 import Model from "../Model";
-import { addProp } from "./property";
+import { addProp } from "./prop";
 
 export default function ref(model: Model, key: string): void;
 export default function ref(ref: any): (model: Model, key: string) => void;
