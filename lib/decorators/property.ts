@@ -1,7 +1,4 @@
 import Model, { IMeta } from "../Model";
-import propertyTransformers from "./propertyTransformers";
-
-property.transformers = propertyTransformers;
 
 export default function property(model: Model, key: string): void;
 export default function property(cfg: any): (model: Model, key: string) => void;
