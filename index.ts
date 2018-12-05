@@ -1,6 +1,7 @@
 export { default as Model, Ref } from "./lib/Model";
-export { default as model } from "./lib/decorators/model";
 export { default as def } from "./lib/decorators/def";
+export { default as model } from "./lib/decorators/model";
+export { default as nested } from "./lib/decorators/nested";
 export {
   default as property,
   default as prop,

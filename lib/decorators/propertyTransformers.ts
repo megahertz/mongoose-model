@@ -8,6 +8,7 @@ const transformers = [
   getSet,
   ref,
   subdoc,
+  nested,
 ];
 
 export default transformers;
@@ -50,6 +51,15 @@ function getSet(model: Model, key: string, cfg: any) {
   return cfg;
 }
 
+function nested(model: Model, key: string, cfg: any) {
+  if (!cfg._nested) return cfg;
+
+  delete cfg.type;
+  delete cfg._nested;
+
+  return cfg;
+}
+
 function ref(model: Model, key: string, cfg: any) {
   if (!cfg.ref) return cfg;
 
@@ -79,14 +89,14 @@ function ref(model: Model, key: string, cfg: any) {
 }
 
 function subdoc(model: Model, key: string, cfg: any) {
-  if (!cfg.subdoc) return cfg;
+  if (!cfg._subdoc) return cfg;
 
-  if (cfg.subdoc === true) {
-    cfg.subdoc = cfg.type;
+  if (cfg._subdoc === true) {
+    cfg._subdoc = cfg.type;
   }
 
-  const schema = cfg.subdoc._schema || new Schema(cfg.subdoc);
-  delete cfg.subdoc;
+  const schema = cfg._subdoc._schema || new Schema(cfg._subdoc);
+  delete cfg._subdoc;
 
   cfg.type = cfg.type === Array ? [schema] : schema;
 

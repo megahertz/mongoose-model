@@ -6,12 +6,12 @@ export default function subdoc(cfg: any): (model: Model, key: string) => void;
 export default function subdoc(modelOrCfg: Model | any, key?: string) {
   // normal decorator
   if (modelOrCfg instanceof Model) {
-    addProp(modelOrCfg, key, { subdoc: true });
+    addProp(modelOrCfg, key, { _subdoc: true });
     return;
   }
 
   // decorator with arguments
   return (model: Model, propKey: string) => {
-    addProp(model, propKey, { subdoc: modelOrCfg });
+    addProp(model, propKey, { _subdoc: modelOrCfg });
   };
 }
