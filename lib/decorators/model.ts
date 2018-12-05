@@ -23,8 +23,11 @@ function initializeModel(constructor: typeof Model, cfg?: any) {
 
   meta.schemaOptions = cfg;
   meta.properties = transformProperties(constructor.prototype, meta.properties);
+
   cls._schema = new Schema(meta.properties, meta.schemaOptions);
+  cls._schema.methods = meta.methods;
   cls.initSchema();
+
   cls._Model = mongooseModel(meta.name, cls._schema);
   cls._Model._OuterModel = cls;
 }

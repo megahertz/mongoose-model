@@ -18,6 +18,7 @@ export interface IModelType<T extends Model> {
 }
 
 export interface IMeta {
+  methods: any;
   name: string;
   properties: any;
   schemaOptions: any;
@@ -776,6 +777,7 @@ export default class Model {
     }
 
     this._meta = {
+      methods: {},
       name: this.name,
       properties: {},
       schemaOptions: {},
