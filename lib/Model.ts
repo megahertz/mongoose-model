@@ -426,8 +426,8 @@ export default class Model {
    * MyModel.create(docs) does new MyModel(doc).save() for every doc in docs.
    * Triggers the save() hook.
    */
-  static async create<T extends Model>(doc: any[]): Promise<T[]>;
   static async create<T extends Model>(doc: any): Promise<T>;
+  static async create<T extends Model[]>(doc: any[]): Promise<T>;
   static async create<T extends Model>(doc: any): Promise<any> {
     return this.wrapResults(await this._Model.create(this.unwrap(doc))) as any;
   }
