@@ -13,9 +13,7 @@ import {
   Schema,
 } from "mongoose";
 
-export interface IModelType<T extends Model> {
-  new (model?: Document): T;
-}
+export type IModelType<T extends Model> = new (model?: Document) => T;
 
 export interface IMeta {
   methods: any;
@@ -678,7 +676,7 @@ export default class Model {
    * Removes documents from the collection.
    * @deprecated
    */
-  static remove(conditions?: object): Query<void> {
+  static remove(conditions?: object): Query<any> {
     return this._Model.remove(conditions);
   }
 

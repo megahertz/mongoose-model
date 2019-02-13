@@ -36,8 +36,11 @@ describe("@subdoc", () => {
     expect((schema.path("inlineArray") as any).instance).equals("Array");
 
     const model = new SubdocModelMain();
-    expect(model.inlineArray[0].toObject())
-      .to.deep.equal({ inlineArrayProp: "inline array default"});
+
+    console.log(model.inlineArray[0]);
+
+    expect(model.inlineArray[0].inlineArrayProp)
+      .to.equal("inline array default");
   });
 
   it("should define subdoc schema from another model", () => {
