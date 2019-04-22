@@ -65,6 +65,10 @@ export default class Model {
     return (this._document as any).id;
   }
 
+  set id(value: any) {
+    this.set("id", value);
+  }
+
   get isNew(): boolean {
     return this._document.isNew;
   }
