@@ -24,6 +24,8 @@ export interface IMeta {
 
 export type Ref<T> = T & string;
 
+type UpdateValues<T> = Partial<Record<keyof T, any>>;
+
 export default class Model {
   protected static _meta: IMeta;
   protected static _Model: MongooseModel<Document>;
@@ -278,8 +280,13 @@ export default class Model {
   /**
    * Sets the value of a path, or many paths.
    */
-  set(key: string, value: any, type?: any, options?: object): this;
-  set(values: object, value?: any, type?: any, options?: object): this;
+  set<T = Model>(key: keyof T, value: any, type?: any, options?: object): this;
+  set<T = Model>(
+    values: Partial<T>,
+    value?: any,
+    type?: any,
+    options?: object,
+  ): this;
   set(...values: any[]): this {
     if (typeof values[0] === "string") {
       values[1] = Model.unwrap(values[1]);
@@ -328,7 +335,7 @@ export default class Model {
   /**
    * Sends an update command with this document _id as the query selector.
    */
-  update(doc: object, options?: ModelUpdateOptions): Query<any> {
+  update(doc: UpdateValues<this>, options?: ModelUpdateOptions): Query<any> {
     return this._document.update(doc, options);
   }
 
@@ -428,9 +435,10 @@ export default class Model {
    * MyModel.create(docs) does new MyModel(doc).save() for every doc in docs.
    * Triggers the save() hook.
    */
-  static async create<T extends Model>(doc: any): Promise<T>;
-  static async create<T extends Model[]>(doc: any[]): Promise<T>;
-  static async create<T extends Model>(doc: any): Promise<any> {
+  static async create<T>(doc: T): Promise<T>;
+  static async create<T extends Model>(doc: Partial<T>): Promise<T>;
+  static async create<T extends Model[]>(doc: T): Promise<T>;
+  static async create<T>(doc: T): Promise<T> {
     return this.wrapResults(await this._Model.create(this.unwrap(doc))) as any;
   }
 
@@ -547,7 +555,7 @@ export default class Model {
    */
   static findByIdAndUpdate<T extends Model>(
     id: object | number | string,
-    update?: object,
+    update?: UpdateValues<T>,
     options?: object,
   ): Query<T> {
     return this.wrap(this._Model.findByIdAndUpdate(id, update, options));
@@ -583,7 +591,7 @@ export default class Model {
    */
   static findOneAndUpdate<T extends Model>(
     conditions?: object,
-    update?: object,
+    update?: UpdateValues<T>,
     options?: object,
   ): Query<T> {
     return this.wrap(this._Model.findOneAndUpdate(conditions, update, options));
@@ -714,9 +722,9 @@ export default class Model {
    * All update values are cast to their appropriate SchemaTypes before being
    * sent.
    */
-  static update(
+  static update<T extends Model>(
     conditions: object,
-    doc: object,
+    doc: UpdateValues<T>,
     options?: ModelUpdateOptions,
   ): Query<any> {
     return this._Model.update(conditions, doc, options);
@@ -729,9 +737,9 @@ export default class Model {
    * **Note** updateMany will _not_ fire update middleware. Use
    * `pre('updateMany')` and `post('updateMany')` instead.
    */
-  static updateMany(
+  static updateMany<T extends Model>(
     conditions: object,
-    doc: object,
+    doc: UpdateValues<T>,
     options?: ModelUpdateOptions,
   ): Query<any> {
     return (this._Model as any).updateMany(conditions, doc, options);
@@ -744,9 +752,9 @@ export default class Model {
    * **Note** updateMany will _not_ fire update middleware. Use
    * `pre('updateMany')` and `post('updateMany')` instead.
    */
-  static updateOne(
+  static updateOne<T extends Model>(
     conditions: object,
-    doc: object,
+    doc: UpdateValues<T>,
     options?: ModelUpdateOptions,
   ): Query<any> {
     return (this._Model as any).updateOne(conditions, doc, options);
