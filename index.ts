@@ -1,9 +1,4 @@
-if (typeof Reflect === 'undefined' || !Reflect.getMetadata) {
-  throw new Error(
-    'mongoose-model requires a reflect polyfill. Please add '
-    + `"import 'reflect-metadata'" to the top of your entry point.`,
-  );
-}
+import 'reflect-metadata';
 
 export { default as Model, Ref } from './lib/Model';
 export { default as def } from './lib/decorators/def';

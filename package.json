@@ -1,6 +1,6 @@
 {
   "name": "mongoose-model",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Define your mongoose models easily with Typescript",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
@@ -29,12 +29,15 @@
   "peerDependencies": {
     "mongoose": ">=4"
   },
+  "dependencies": {
+    "reflect-metadata": "*"
+  },
   "devDependencies": {
     "@types/mongoose": "*",
     "@types/node": "*",
-    "humile": "^0.2.0",
+    "humile": "*",
     "mongoose": "*",
-    "reflect-metadata": "^0.1.13",
+
     "ts-node": "^5.0.1",
     "tslint": "*",
     "typescript": "*"
