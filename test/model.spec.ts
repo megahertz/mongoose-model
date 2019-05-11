@@ -4,19 +4,18 @@ import User from './models/User';
 const email = 'user1@example.com';
 
 describe('Model', () => {
-  beforeEach(() => {
-    const user = new User({
-      age: 20,
+  beforeEach(async () => {
+    return User.create<User>({
+      age: 30,
       contacts: [
-        { kind: 'phone', text: '+7 900 123 4567' },
+        { kind: 'phone', value: '+7 900 123 4567' },
       ],
       email,
       name: 'User 1',
     });
-    return user.save();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     return User.deleteMany();
   });
 
@@ -41,7 +40,10 @@ describe('Model', () => {
   });
 
   it('should contain the array-like field - contacts', async () => {
-    const users = await User.find<User[]>({ email }).limit(1);
+    const users = await User.find<User[]>({ email });
+    if (users.length > 1) {
+      console.log(users.map(u => u.toJSON()));
+    }
     expect(users[0].contacts[0].kind).toEqual('phone');
   });
 });

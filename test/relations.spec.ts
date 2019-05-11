@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'humile';
+import { afterEach, beforeEach, describe, expect, it } from 'humile';
 import { Types } from 'mongoose';
 import Post from './models/Post';
 import User from './models/User';
@@ -7,9 +7,6 @@ const email = 'user1@example.com';
 
 describe('Model relations', () => {
   beforeEach(async () => {
-    await User.deleteMany();
-    await Post.deleteMany();
-
     const user = await User.create({
       age: 20,
       email,
@@ -21,6 +18,11 @@ describe('Model relations', () => {
       creator: user,
       title: 'Post 1',
     });
+  });
+
+  afterEach(async () => {
+    await User.deleteMany();
+    await Post.deleteMany();
   });
 
   it('should allow to populate related models', async () => {
