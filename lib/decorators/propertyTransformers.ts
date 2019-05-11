@@ -1,6 +1,6 @@
-import { Schema } from "mongoose";
-import "reflect-metadata";
-import Model from "../Model";
+import { Schema } from 'mongoose';
+import 'reflect-metadata';
+import Model from '../Model';
 
 const transformers = [
   def,
@@ -67,12 +67,12 @@ function ref(model: Model, key: string, cfg: any) {
     if (!cfg.type) {
       const name = (model.constructor as any)._meta.name;
       throw new Error(
-        "It seems that your code has circular references. In this case " +
+        'It seems that your code has circular references. In this case ' +
         `${name}.${key} reference should be decorated explicitly:  ` +
         `@ref('Model') ${key}: Model instead of @ref ${key}: Model. ` +
         `Unfortunately, typescript doesn't support circular ` +
-        "references between classes with decorators. " +
-        "https://github.com/Microsoft/TypeScript/issues/4521",
+        'references between classes with decorators. ' +
+        'https://github.com/Microsoft/TypeScript/issues/4521',
       );
     }
 
@@ -106,7 +106,7 @@ function subdoc(model: Model, key: string, cfg: any) {
 function type(model: Model, key: string, cfg: any) {
   if (cfg.type) return cfg;
 
-  cfg.type = Reflect.getMetadata("design:type", model, key);
+  cfg.type = Reflect.getMetadata('design:type', model, key);
 
   if (cfg.type || cfg.ref) {
     return cfg;
@@ -115,6 +115,6 @@ function type(model: Model, key: string, cfg: any) {
   const name = (model.constructor as any)._meta.name;
   throw new Error(
     `Type of ${name}.${key} isn't set. If you use typescript ` +
-    "you need to enable emitDecoratorMetadata in tsconfig.json",
+    'you need to enable emitDecoratorMetadata in tsconfig.json',
   );
 }

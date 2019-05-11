@@ -1,16 +1,16 @@
 {
   "name": "mongoose-model",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Define your mongoose models easily with Typescript",
-  "main": "./dist/index.js",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
     "prepublish": "npm run build && npm run test",
     "build": "tsc",
     "lint": "tslint -t verbose index.ts '{lib|test}/**/*.ts'",
-    "mocha": "mocha -r ts-node/register test/init.ts 'test/**/*.spec.ts'",
-    "test": "npm run lint && npm run mocha"
+    "humile": "humile test/init.ts 'test/**/*.spec.ts'",
+    "test": "npm run lint && npm run humile"
   },
-  "typings": "./dist/index.d.ts",
   "repository": "megahertz/mongoose-model",
   "files": [
     "dist"
@@ -30,18 +30,13 @@
     "mongoose": ">=4"
   },
   "devDependencies": {
-    "@types/chai": "*",
-    "@types/mocha": "*",
     "@types/mongoose": "*",
     "@types/node": "*",
-    "chai": "*",
-    "mocha": "*",
+    "humile": "^0.2.0",
     "mongoose": "*",
-    "ts-node": "*",
+    "reflect-metadata": "^0.1.13",
+    "ts-node": "^5.0.1",
     "tslint": "*",
     "typescript": "*"
-  },
-  "dependencies": {
-    "reflect-metadata": "*"
   }
 }

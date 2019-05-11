@@ -1,12 +1,13 @@
-import * as mongoose from "mongoose";
+import { afterAll, beforeAll } from 'humile';
+import * as mongoose from 'mongoose';
 
-before(() => {
-  return (mongoose as any).connect("mongodb://localhost/mongoose-model", {
+beforeAll(() => {
+  return (mongoose as any).connect('mongodb://localhost/mongoose-model', {
     promiseLibrary: global.Promise,
     useNewUrlParser: true,
   });
 });
 
-after(() => {
+afterAll(() => {
   mongoose.disconnect();
 });

@@ -1,5 +1,5 @@
-import Model from "../Model";
-import { addProp } from "./prop";
+import Model from '../Model';
+import { addProp } from './prop';
 
 export default function def(model: Model, key: string): void;
 export default function def(value: any): (model: Model, key: string) => void;

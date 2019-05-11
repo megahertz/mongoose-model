@@ -1,4 +1,4 @@
-import { Query } from "mongoose";
+import { Query } from 'mongoose';
 import { Model, model, prop, ref } from "../../index";
 import User from "./User";
 

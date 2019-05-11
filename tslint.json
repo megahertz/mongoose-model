@@ -32,6 +32,7 @@
     "no-shadowed-variable": false,
     "no-unused-expression": false,
     "no-var-requires": false,
+    "quotemark": [true, "single"],
     "variable-name": false,
     "unified-signatures": false
   }

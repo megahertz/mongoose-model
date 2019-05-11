@@ -11,7 +11,8 @@ import {
   Query,
   SaveOptions,
   Schema,
-} from "mongoose";
+  Types,
+} from 'mongoose';
 
 export type IModelType<T extends Model> = new (model?: Document) => T;
 
@@ -34,7 +35,7 @@ export default class Model {
   protected _document: Document;
 
   constructor(document?: any) {
-    if (document && typeof document.__v !== "undefined") {
+    if (document && typeof document.__v !== 'undefined') {
       this._document = document;
       return;
     }
@@ -68,7 +69,7 @@ export default class Model {
   }
 
   set id(value: any) {
-    this.set("id", value);
+    this.set('id', value);
   }
 
   get isNew(): boolean {
@@ -123,11 +124,11 @@ export default class Model {
     const value = this._document.get(path, type);
     const options = (this as any).constructor._meta.properties[path];
 
-    if (options && options.ref && value) {
+    if (options && options.ref && value && !(value instanceof Types.ObjectId)) {
       let ref = options.ref;
 
       // noinspection SuspiciousTypeOfGuard
-      if (typeof ref === "string") {
+      if (typeof ref === 'string') {
         ref = (model(options.ref) as any)._OuterModel;
       }
 
@@ -288,7 +289,7 @@ export default class Model {
     options?: object,
   ): this;
   set(...values: any[]): this {
-    if (typeof values[0] === "string") {
+    if (typeof values[0] === 'string') {
       values[1] = Model.unwrap(values[1]);
     } else {
       values[0] = Model.unwrap(values[0]);
@@ -486,7 +487,7 @@ export default class Model {
     options: any,
     callback?: (err: any) => void,
    ): Promise<void> {
-    if (typeof options === "function") {
+    if (typeof options === 'function') {
       callback = options;
       options = {};
     }
@@ -506,7 +507,7 @@ export default class Model {
     options: any,
     callback?: (err: any, count: number) => void,
   ): Query<number> {
-    if (typeof options === "function") {
+    if (typeof options === 'function') {
       callback = options;
       options = {};
     }

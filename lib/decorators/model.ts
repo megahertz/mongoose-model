@@ -1,12 +1,12 @@
-import { model as mongooseModel, Schema } from "mongoose";
-import Model, { IMeta } from "../Model";
-import { transformProperties } from "./propertyTransformers";
+import { model as mongooseModel, Schema } from 'mongoose';
+import Model, { IMeta } from '../Model';
+import { transformProperties } from './propertyTransformers';
 
 export default function model(constructor: typeof Model);
 export default function model(options: object);
 export default function model(constructorOrCfg: typeof Model | object) {
   // normal decorator
-  if (typeof constructorOrCfg === "function") {
+  if (typeof constructorOrCfg === 'function') {
     initializeModel(constructorOrCfg as any);
     return;
   }

@@ -12,7 +12,7 @@ Install with [npm](https://npmjs.org/package/mongoose-model):
 ## Usage
 
 ```typescript
-import { def, Model, model, prop, Query, ref } from "mongoose-model";
+import { def, Model, model, prop, Query, ref } from 'mongoose-model';
 
 export interface IContact {
   kind: string;

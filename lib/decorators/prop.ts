@@ -1,4 +1,4 @@
-import Model, { IMeta } from "../Model";
+import Model, { IMeta } from '../Model';
 
 export default function prop(model: Model, key: string): void;
 export default function prop(cfg: any): (model: Model, key: string) => void;

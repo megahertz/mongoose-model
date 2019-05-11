@@ -1,22 +1,22 @@
-import { expect } from "chai";
-import { Schema } from "mongoose";
-import { def, model, Model, prop, subdoc } from "../../index";
+import { describe, expect, it } from 'humile';
+import { Schema } from 'mongoose';
+import { def, model, Model, subdoc } from '../../index';
 
 @model
 class SubdocModelChild extends Model {
-  @def("Default name") name: string;
+  @def('Default name') name: string;
 }
 
 @model
 class SubdocModelMain extends Model {
   @subdoc({
-    inlineProp: { default: "inline default", type: String },
+    inlineProp: { default: 'inline default', type: String },
   })
   inline;
 
   @def(() => [{}])
   @subdoc({
-    inlineArrayProp: { default: "inline array default", type: String },
+    inlineArrayProp: { default: 'inline array default', type: String },
   })
   inlineArray: any[];
 
@@ -28,28 +28,26 @@ class SubdocModelMain extends Model {
   simpleArray: SubdocModelChild[];
 }
 
-describe("@subdoc", () => {
-  it("should define subdoc schema inline", () => {
+describe('@subdoc', () => {
+  it('should define subdoc schema inline', () => {
     const schema: Schema = (SubdocModelMain as any)._schema;
 
-    expect((schema.path("inline") as any).instance).equals("Embedded");
-    expect((schema.path("inlineArray") as any).instance).equals("Array");
+    expect((schema.path('inline') as any).instance).toBe('Embedded');
+    expect((schema.path('inlineArray') as any).instance).toBe('Array');
 
     const model = new SubdocModelMain();
-
-    console.log(model.inlineArray[0]);
 
     expect(model.inlineArray[0].inlineArrayProp)
-      .to.equal("inline array default");
+      .toBe('inline array default');
   });
 
-  it("should define subdoc schema from another model", () => {
+  it('should define subdoc schema from another model', () => {
     const schema: Schema = (SubdocModelMain as any)._schema;
 
-    expect((schema.path("simple") as any).instance).equals("Embedded");
-    expect((schema.path("simpleArray") as any).instance).equals("Array");
+    expect((schema.path('simple') as any).instance).toBe('Embedded');
+    expect((schema.path('simpleArray') as any).instance).toBe('Array');
 
     const model = new SubdocModelMain();
-    expect(model.simple.name).equals("Default name");
+    expect(model.simple.name).toBe('Default name');
   });
 });

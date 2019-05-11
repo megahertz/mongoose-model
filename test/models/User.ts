@@ -1,5 +1,5 @@
-import { Query } from "mongoose";
-import { def, Model, model, prop, subdoc } from "../../index";
+import { Query } from 'mongoose';
+import { def, Model, model, prop } from '../../index';
 
 export interface IContact {
   kind: string;
