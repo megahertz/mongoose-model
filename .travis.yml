@@ -1,9 +1,8 @@
-sudo: false
 services:
   - mongodb
 language: node_js
 node_js:
-  - "6"
+  - "10"
   - "node"
 
 matrix:

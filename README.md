@@ -7,7 +7,13 @@
 
 Install with [npm](https://npmjs.org/package/mongoose-model):
 
-    npm install mongoose-model
+    npm install mongoose-model reflect-metadata
+    
+reflect-metadata is here for example, you can use any of Reflect API polyfills:
+
+ - [reflect-metadata](https://www.npmjs.com/package/reflect-metadata)
+ - [core-js (core-js/es7/reflect)](https://www.npmjs.com/package/core-js)
+ - [reflection](https://www.npmjs.com/package/@abraham/reflection)
 
 ## Usage
 
@@ -52,6 +58,3 @@ export class Post extends Model {
   }
 }
 ```
-## License
-
-Licensed under MIT.
