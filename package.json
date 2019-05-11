@@ -7,7 +7,7 @@
   "scripts": {
     "prepublish": "npm run build && npm run test",
     "build": "tsc",
-    "lint": "tslint -t verbose index.ts '{lib|test}/**/*.ts'",
+    "lint": "tslint -t verbose index.ts 'lib/**/*.ts' 'test/**/*.ts'",
     "humile": "humile test/init.ts 'test/**/*.spec.ts'",
     "test": "npm run lint && npm run humile"
   },
@@ -37,7 +37,6 @@
     "@types/node": "*",
     "humile": "*",
     "mongoose": "*",
-
     "ts-node": "^5.0.1",
     "tslint": "*",
     "typescript": "*"

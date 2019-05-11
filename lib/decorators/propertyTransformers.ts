@@ -1,5 +1,4 @@
 import { Schema } from 'mongoose';
-import 'reflect-metadata';
 import Model from '../Model';
 
 const transformers = [
