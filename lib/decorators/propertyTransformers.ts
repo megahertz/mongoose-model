@@ -16,13 +16,9 @@ export function transformProperties(model: Model, properties: object) {
   for (const i in properties) {
     if (!properties.hasOwnProperty(i)) continue;
 
-    properties[i]._original = { ...properties[i] };
-
     for (const transformer of transformers) {
       properties[i] = transformer(model, i, properties[i]);
     }
-
-    delete properties[i]._original;
   }
 
   return properties;
@@ -30,7 +26,7 @@ export function transformProperties(model: Model, properties: object) {
 
 interface ICfg extends SchemaTypeOpts<any> {
   _nested?: any;
-  _original: ICfg;
+  _refType: any;
   _subdoc: any;
   default: any;
   ref: string | boolean | Function;
@@ -94,7 +90,9 @@ function ref(model: Model, key: string, cfg: ICfg) {
     cfg.ref = (cfg.ref as Function).name;
   }
 
-  cfg.type = cfg._original.type || Schema.Types.ObjectId;
+  cfg.type = cfg._refType || Schema.Types.ObjectId;
+
+  delete cfg._refType;
 
   return cfg;
 }

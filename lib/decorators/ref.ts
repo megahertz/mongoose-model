@@ -16,6 +16,11 @@ export default function ref(modelOrRef: Model | IRef, key?: string) {
       modelOrRef = { ref: modelOrRef };
     }
 
+    if ((modelOrRef as any).type) {
+      (modelOrRef as any)._refType = (modelOrRef as any).type;
+      delete (modelOrRef as any).type;
+    }
+
     addProp(model, propKey, { ref: true, ...modelOrRef });
   };
 }

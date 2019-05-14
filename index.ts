@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-export { default as Model, Ref } from './lib/Model';
+export { default as Model, Ref, IMeta } from './lib/Model';
 export { default as def } from './lib/decorators/def';
 export { default as method } from './lib/decorators/method';
 export { default as model } from './lib/decorators/model';

@@ -800,7 +800,11 @@ export default class Model {
   }
 
   // tslint:disable-next-line no-empty
-  protected static initSchema(): void {}
+  protected static initSchema(meta: IMeta): Schema {
+    const schema = new Schema(meta.properties, meta.schemaOptions);
+    schema.methods = meta.methods;
+    return schema;
+  }
 
   /**
    * Return document from model instance. Can traverse arrays and objects
