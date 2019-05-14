@@ -1,5 +1,6 @@
 import { model as mongooseModel, Schema, SchemaOptions } from 'mongoose';
-import Model, { IMeta } from '../Model';
+import Model from '../Model';
+import { IMeta } from '../types';
 import { transformProperties } from './propertyTransformers';
 
 export default function model(constructor: typeof Model);

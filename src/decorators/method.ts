@@ -1,4 +1,5 @@
-import Model, { IMeta } from '../Model';
+import Model from '../Model';
+import { IMeta } from '../types';
 
 export default function method(
   model: Model,

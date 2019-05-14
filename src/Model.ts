@@ -13,15 +13,9 @@ import {
   Schema,
   Types,
 } from 'mongoose';
+import { IMeta } from './types';
 
 export type IModelType<T extends Model> = new (model?: Document) => T;
-
-export interface IMeta {
-  methods: any;
-  name: string;
-  properties: any;
-  schemaOptions: any;
-}
 
 export type Ref<T> = T & string;
 
@@ -792,6 +786,8 @@ export default class Model {
     this._meta = {
       methods: {},
       name: this.name,
+      postHooks: [],
+      preHooks: [],
       properties: {},
       schemaOptions: {},
     };
@@ -802,7 +798,17 @@ export default class Model {
   // tslint:disable-next-line no-empty
   protected static initSchema(meta: IMeta): Schema {
     const schema = new Schema(meta.properties, meta.schemaOptions);
+
     schema.methods = meta.methods;
+
+    meta.preHooks.forEach(({ event, callback }) => {
+      schema.pre(event, callback as any);
+    });
+
+    meta.postHooks.forEach(({ event, callback }) => {
+      schema.post(event, callback as any);
+    });
+
     return schema;
   }
 
