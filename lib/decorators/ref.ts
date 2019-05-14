@@ -12,6 +12,6 @@ export default function ref(modelOrRef: Model | any, key?: string) {
 
   // decorator with arguments
   return (model: Model, propKey: string) => {
-    addProp(model, propKey, { ref: modelOrRef });
+    addProp(model, propKey, { ref: true, ...modelOrRef });
   };
 }
