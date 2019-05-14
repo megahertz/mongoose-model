@@ -1,5 +1,6 @@
 import { SchemaTypeOpts } from 'mongoose';
-import Model, { IMeta } from '../Model';
+import Model from '../Model';
+import { IMeta } from '../types';
 
 export default function prop(model: Model, key: string);
 export default function prop<T extends any>(cfg: SchemaTypeOpts<T>);
