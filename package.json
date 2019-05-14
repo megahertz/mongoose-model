@@ -1,14 +1,14 @@
 {
   "name": "mongoose-model",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Define your mongoose models easily with Typescript",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "scripts": {
     "prepublish": "npm run build && npm run test",
     "build": "tsc",
-    "lint": "tslint -t verbose index.ts 'lib/**/*.ts' 'test/**/*.ts'",
-    "humile": "humile test/init.ts 'test/**/*.spec.ts'",
+    "lint": "tslint -t verbose 'src/**/*.ts'",
+    "humile": "humile",
     "test": "npm run lint && npm run humile"
   },
   "repository": "megahertz/mongoose-model",
