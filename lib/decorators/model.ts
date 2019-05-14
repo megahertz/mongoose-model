@@ -1,10 +1,10 @@
-import { model as mongooseModel, Schema } from 'mongoose';
+import { model as mongooseModel, Schema, SchemaOptions } from 'mongoose';
 import Model, { IMeta } from '../Model';
 import { transformProperties } from './propertyTransformers';
 
 export default function model(constructor: typeof Model);
-export default function model(options: object);
-export default function model(constructorOrCfg: typeof Model | object) {
+export default function model(options: SchemaOptions);
+export default function model(constructorOrCfg: typeof Model | SchemaOptions) {
   // normal decorator
   if (typeof constructorOrCfg === 'function') {
     initializeModel(constructorOrCfg as any);
@@ -17,7 +17,7 @@ export default function model(constructorOrCfg: typeof Model | object) {
   };
 }
 
-function initializeModel(constructor: typeof Model, cfg?: any) {
+function initializeModel(constructor: typeof Model, cfg?: SchemaOptions) {
   const cls = constructor as any;
   const meta: IMeta = cls.initMeta();
 

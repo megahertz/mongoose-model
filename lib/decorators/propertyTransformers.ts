@@ -1,4 +1,4 @@
-import { Schema } from 'mongoose';
+import { Schema, SchemaTypeOpts } from 'mongoose';
 import Model from '../Model';
 
 const transformers = [
@@ -16,15 +16,27 @@ export function transformProperties(model: Model, properties: object) {
   for (const i in properties) {
     if (!properties.hasOwnProperty(i)) continue;
 
+    properties[i]._original = { ...properties[i] };
+
     for (const transformer of transformers) {
       properties[i] = transformer(model, i, properties[i]);
     }
+
+    delete properties[i]._original;
   }
 
   return properties;
 }
 
-function def(model: Model, key: string, cfg: any) {
+interface ICfg extends SchemaTypeOpts<any> {
+  _nested?: any;
+  _original: ICfg;
+  _subdoc: any;
+  default: any;
+  ref: string | boolean | Function;
+}
+
+function def(model: Model, key: string, cfg: ICfg) {
   if (!cfg.default) return cfg;
 
   if (cfg.default.prototype instanceof Model) {
@@ -35,7 +47,7 @@ function def(model: Model, key: string, cfg: any) {
   return cfg;
 }
 
-function getSet(model: Model, key: string, cfg: any) {
+function getSet(model: Model, key: string, cfg: ICfg) {
   Object.defineProperty(model, key, {
     configurable: true,
     enumerable: true,
@@ -50,7 +62,7 @@ function getSet(model: Model, key: string, cfg: any) {
   return cfg;
 }
 
-function nested(model: Model, key: string, cfg: any) {
+function nested(model: Model, key: string, cfg: ICfg) {
   if (!cfg._nested) return cfg;
 
   delete cfg.type;
@@ -59,7 +71,7 @@ function nested(model: Model, key: string, cfg: any) {
   return cfg;
 }
 
-function ref(model: Model, key: string, cfg: any) {
+function ref(model: Model, key: string, cfg: ICfg) {
   if (!cfg.ref) return cfg;
 
   if (cfg.ref === true) {
@@ -78,16 +90,16 @@ function ref(model: Model, key: string, cfg: any) {
     cfg.ref = cfg.type;
   }
 
-  if (cfg.ref.name) {
-    cfg.ref = cfg.ref.name;
+  if ((cfg.ref as Function).name) {
+    cfg.ref = (cfg.ref as Function).name;
   }
 
-  cfg.type = cfg.refType || Schema.Types.ObjectId;
+  cfg.type = cfg._original.type || Schema.Types.ObjectId;
 
   return cfg;
 }
 
-function subdoc(model: Model, key: string, cfg: any) {
+function subdoc(model: Model, key: string, cfg: ICfg) {
   if (!cfg._subdoc) return cfg;
 
   if (cfg._subdoc === true) {
