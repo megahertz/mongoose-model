@@ -82,7 +82,7 @@ function ref(model: Model, key: string, cfg: any) {
     cfg.ref = cfg.ref.name;
   }
 
-  cfg.type = Schema.Types.ObjectId;
+  cfg.type = cfg.refType || Schema.Types.ObjectId;
 
   return cfg;
 }
