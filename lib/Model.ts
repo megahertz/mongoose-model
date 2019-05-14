@@ -83,6 +83,15 @@ export default class Model {
     return this._document.$isDefault(path);
   }
 
+  /** Override whether mongoose thinks this doc is deleted or not */
+  $isDeleted(isDeleted: boolean): void;
+  /** whether mongoose thinks this doc is deleted. */
+  $isDeleted(): boolean;
+  /** Override whether mongoose thinks this doc is deleted or not */
+  $isDeleted(isDeleted?: boolean): void | boolean {
+    return this._document.$isDeleted(isDeleted);
+  }
+
   /**
    * Alias for remove
    */
@@ -172,13 +181,6 @@ export default class Model {
     kind?: string,
   ): any {
     return this._document.invalidate(path, errorMsg, value, kind);
-  }
-
-  /**
-   * Whether mongoose thinks this doc is deleted.
-   */
-  isDeleted(isDeleted?: boolean): boolean | void {
-    return this._document.isDeleted(isDeleted);
   }
 
   /**
