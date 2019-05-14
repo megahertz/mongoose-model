@@ -2,6 +2,7 @@ import 'reflect-metadata';
 
 export { default as Model, Ref, IMeta } from './lib/Model';
 export { default as def } from './lib/decorators/def';
+export { default as index } from './lib/decorators/index';
 export { default as method } from './lib/decorators/method';
 export { default as model } from './lib/decorators/model';
 export { default as nested } from './lib/decorators/nested';
