@@ -127,18 +127,21 @@ export default class Model {
     const value = this._document.get(path, type);
     const options = (this as any).constructor._meta.properties[path];
 
-    if (options && options.ref && value && !(value instanceof Types.ObjectId)) {
-      let ref = options.ref;
+    const isRef = options && options.ref;
+    const isObject = value && typeof value === 'object';
+    const isObjectId = value instanceof Types.ObjectId;
 
-      // noinspection SuspiciousTypeOfGuard
-      if (typeof ref === 'string') {
-        ref = (model(options.ref) as any)._OuterModel;
-      }
-
-      return new ref(value);
+    if (!isRef || !isObject || isObjectId) {
+      return value;
     }
 
-    return value;
+    let ref = options.ref;
+
+    if (typeof ref === 'string') {
+      ref = (model(options.ref) as any)._OuterModel;
+    }
+
+    return new ref(value);
   }
 
   /**
